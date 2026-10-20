@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyLab Escape · Laboratorio de Python</title>
+<meta name="description" content="Sala de escape gamificada para aprender Python: variables, condicionales, colecciones, bucles, funciones, clases, herencia y módulos.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&family=Nunito+Sans:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B132B; --bg2:#0E1835; --panel:#1C2541; --panel2:#243056; --steel:#3A506B;
+  --teal:#5BC0BE; --teal-d:#3E9C9A; --cream:#F4F1DE; --amber:#F2C57C; --coral:#E07A5F;
+  --green:#7BD88F; --muted:#9FB3C8; --code:#070D1F; --line:#2E3B63;
+  --r:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  --f-head:'Rubik',system-ui,sans-serif; --f-body:'Nunito Sans',system-ui,sans-serif; --f-code:'JetBrains Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--cream);font-family:var(--f-body);font-size:17px;line-height:1.6;min-height:100vh;
+  background-image:radial-gradient(circle at 15% 0%, rgba(91,192,190,.10), transparent 40%),
+  radial-gradient(circle at 100% 100%, rgba(58,80,107,.35), transparent 45%),
+  linear-gradient(rgba(91,192,190,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(91,192,190,.035) 1px, transparent 1px);
+  background-size:auto,auto,32px 32px,32px 32px;}
+h1,h2,h3,h4{font-family:var(--f-head);line-height:1.15;margin:0 0 .5em}
+a{color:var(--teal)}
+button{font:inherit;cursor:pointer}
+code{font-family:var(--f-code);background:rgba(91,192,190,.12);color:var(--teal);padding:1px 6px;border-radius:6px;font-size:.9em}
+.hidden{display:none!important}
+
+/* ---------- TOPBAR ---------- */
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 20px;
+  background:rgba(11,19,43,.92);backdrop-filter:blur(8px);border-bottom:3px solid var(--teal)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-head);font-weight:800;font-size:22px;letter-spacing:.5px;cursor:pointer;margin-right:auto}
+.brand .logo{width:38px;height:38px;border-radius:10px;background:var(--teal);display:grid;place-items:center;font-size:22px;box-shadow:0 0 18px rgba(91,192,190,.5)}
+.brand small{display:block;font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:14px;font-weight:700;white-space:nowrap}
+.chip.xp{color:var(--amber)} .chip.py-ok{color:var(--green)} .chip.py-load{color:var(--amber)} .chip.py-off{color:var(--coral)}
+.navbtn{background:transparent;border:1px solid var(--line);color:var(--cream);padding:7px 12px;border-radius:10px;font-size:14px;font-weight:700}
+.navbtn:hover{border-color:var(--teal);color:var(--teal)}
+.locks{display:flex;gap:4px}
+.locks span{width:22px;height:26px;border-radius:6px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--f-code);font-size:13px;font-weight:700;color:var(--muted)}
+.locks span.on{background:var(--teal);color:var(--bg);border-color:var(--teal)}
+
+main{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+
+/* ---------- GENERIC ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:12px;padding:12px 22px;font-weight:800;font-family:var(--f-head);font-size:16px;transition:transform .12s, box-shadow .12s}
+.btn:active{transform:translateY(1px)}
+.btn-main{background:var(--teal);color:var(--bg);box-shadow:0 6px 0 var(--teal-d)}
+.btn-main:hover{box-shadow:0 6px 0 var(--teal-d),0 0 22px rgba(91,192,190,.45)}
+.btn-ghost{background:transparent;color:var(--cream);border:2px solid var(--steel)}
+.btn-ghost:hover{border-color:var(--teal)}
+.btn-amber{background:var(--amber);color:var(--bg);box-shadow:0 6px 0 #C79A4F}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.eyebrow{font-family:var(--f-head);font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--teal);font-weight:700}
+.muted{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+
+/* ---------- INTRO ---------- */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;margin-bottom:28px}
+@media (max-width:900px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(36px,6vw,64px);font-weight:800}
+.hero h1 span{color:var(--teal)}
+.hero p.lead{font-size:20px;color:#D5E3EA}
+.terminal{background:var(--code);border:2px solid var(--steel);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.terminal .bar{display:flex;gap:7px;padding:10px 14px;background:var(--panel)}
+.terminal .bar i{width:12px;height:12px;border-radius:50%;display:block}
+.terminal pre{margin:0;padding:18px;font-family:var(--f-code);font-size:14px;line-height:1.7;color:var(--cream);white-space:pre-wrap;min-height:230px}
+.typed::after{content:"▋";animation:blink 1s steps(1) infinite;color:var(--teal)}
+@keyframes blink{50%{opacity:0}}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}
+@media (max-width:820px){.rules{grid-template-columns:1fr 1fr}}
+.rule{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:14px;padding:16px}
+.rule:nth-child(2){border-top-color:var(--amber)} .rule:nth-child(3){border-top-color:var(--coral)} .rule:nth-child(4){border-top-color:var(--green)}
+.rule b{display:block;font-family:var(--f-head);font-size:17px;margin:4px 0}
+.rule .ic{font-size:26px}
+.teamform{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.input{background:var(--code);border:2px solid var(--steel);color:var(--cream);border-radius:12px;padding:12px 16px;font-size:17px;font-family:var(--f-body);min-width:260px;flex:1}
+.input:focus{outline:none;border-color:var(--teal)}
+.avatars{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.avatars button{width:52px;height:52px;border-radius:14px;border:2px solid var(--line);background:var(--panel);font-size:26px}
+.avatars button.sel{border-color:var(--teal);background:var(--panel2);box-shadow:0 0 14px rgba(91,192,190,.4)}
+
+/* ---------- MAPA ---------- */
+.mapa-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:20px}
+.pybot{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--teal);border-radius:14px;padding:14px 18px;margin-bottom:22px}
+.pybot .face{font-size:38px;line-height:1;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.pybot p{margin:0}
+.pybot b{color:var(--teal);font-family:var(--f-head)}
+.salas{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:980px){.salas{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.salas{grid-template-columns:1fr}}
+.sala{position:relative;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px;color:var(--cream);min-height:190px;display:flex;flex-direction:column;gap:6px;transition:transform .15s,border-color .15s}
+.sala:hover:not(.locked){transform:translateY(-3px);border-color:var(--teal)}
+.sala .num{font-family:var(--f-code);font-size:13px;color:var(--muted)}
+.sala .ic{font-size:36px}
+.sala h3{font-size:19px;margin:2px 0 0}
+.sala .concepto{font-size:14px;color:var(--teal);font-weight:700}
+.sala .estado{margin-top:auto;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.sala .digit{font-family:var(--f-code);font-weight:700;font-size:22px;color:var(--bg);background:var(--teal);border-radius:8px;padding:0 9px}
+.sala.locked{opacity:.5;cursor:not-allowed;filter:grayscale(.6)}
+.sala.locked::after{content:"🔒";position:absolute;top:14px;right:16px;font-size:22px}
+.sala.done{border-color:var(--teal-d);background:linear-gradient(160deg,var(--panel) 60%,rgba(91,192,190,.15))}
+.sala.current{border-color:var(--amber);box-shadow:0 0 0 4px rgba(242,197,124,.15)}
+.progress{height:12px;background:var(--code);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.progress > div{height:100%;background:linear-gradient(90deg,var(--teal),var(--green));transition:width .5s}
+.door-cta{margin-top:24px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:linear-gradient(120deg,var(--panel),var(--panel2));border:2px dashed var(--amber);border-radius:18px;padding:20px 24px}
+
+/* ---------- SALA ---------- */
+.sala-head{display:flex;gap:18px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.sala-head .big{font-size:56px}
+.sala-head h2{font-size:clamp(26px,4vw,40px);margin:0}
+.steps{display:flex;gap:8px;margin:18px 0;flex-wrap:wrap}
+.step{flex:1;min-width:150px;border:2px solid var(--line);background:var(--panel);color:var(--muted);border-radius:12px;padding:10px 14px;font-weight:800;font-family:var(--f-head);text-align:left}
+.step.active{border-color:var(--teal);color:var(--cream)}
+.step.ok{color:var(--green)}
+.step.ok::after{content:" ✔"}
+.step:disabled{opacity:.5;cursor:not-allowed}
+.lectura{font-size:18px}
+.lectura h3{color:var(--teal);font-size:22px;margin-top:22px}
+.lectura p{margin:.5em 0 .9em}
+.lectura .tip{background:rgba(242,197,124,.1);border-left:4px solid var(--amber);border-radius:8px;padding:10px 14px;margin:14px 0}
+.lectura .ojo{background:rgba(224,122,95,.12);border-left:4px solid var(--coral);border-radius:8px;padding:10px 14px;margin:14px 0}
+.codebox{position:relative;background:var(--code);border:1px solid var(--steel);border-radius:12px;margin:12px 0 16px;overflow:hidden}
+.codebox pre{margin:0;padding:16px 18px;font-family:var(--f-code);font-size:15px;line-height:1.65;overflow-x:auto;color:var(--cream)}
+.codebox .run{position:absolute;top:10px;right:10px;background:var(--teal);color:var(--bg);border:none;border-radius:8px;padding:5px 12px;font-weight:800;font-size:13px}
+.codebox .out{border-top:1px dashed var(--steel);padding:10px 18px;font-family:var(--f-code);font-size:14px;color:var(--green);white-space:pre-wrap;background:#050A18}
+.codebox .out.err{color:var(--coral)}
+.tk-k{color:#5BC0BE;font-weight:700} .tk-s{color:#F2C57C} .tk-c{color:#7F93AD;font-style:italic} .tk-n{color:#F5A97F} .tk-f{color:#8FB8F0} .tk-b{color:#C3A6F5}
+
+/* ---------- PRÁCTICA ---------- */
+.ejercicio{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
+.ejercicio .q{font-weight:700;font-size:18px;margin-bottom:10px}
+.ejercicio .tag{display:inline-block;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--bg);background:var(--amber);border-radius:6px;padding:1px 8px;margin-bottom:8px}
+.opciones{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.opciones{grid-template-columns:1fr}}
+.opcion{text-align:left;background:var(--panel);color:var(--cream);border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-family:var(--f-code);font-size:15px;white-space:pre-wrap}
+.opcion:hover:not(:disabled){border-color:var(--teal)}
+.opcion.bien{border-color:var(--green);background:rgba(123,216,143,.12)}
+.opcion.mal{border-color:var(--coral);background:rgba(224,122,95,.12);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:16px}
+.feedback.bien{background:rgba(123,216,143,.12);border-left:4px solid var(--green)}
+.feedback.mal{background:rgba(224,122,95,.12);border-left:4px solid var(--coral)}
+.blank{background:#0B1530;border:none;border-bottom:2px solid var(--amber);color:var(--amber);font-family:var(--f-code);font-size:15px;width:9ch;text-align:center;padding:2px 4px}
+.blank:focus{outline:none;border-bottom-color:var(--teal)}
+.blank.bien{border-bottom-color:var(--green);color:var(--green)} .blank.mal{border-bottom-color:var(--coral);color:var(--coral)}
+.parsons{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.parsons{grid-template-columns:1fr}}
+.pzone{background:var(--code);border:2px dashed var(--steel);border-radius:12px;padding:10px;min-height:120px}
+.pzone h4{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:2px 4px 8px}
+.pline{display:block;width:100%;text-align:left;background:var(--panel);color:var(--cream);border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin-bottom:6px;font-family:var(--f-code);font-size:14px;white-space:pre}
+.pline:hover{border-color:var(--teal)}
+
+/* ---------- DESAFÍO ---------- */
+.mision{background:linear-gradient(135deg,var(--panel2),var(--panel));border:2px solid var(--amber);border-radius:16px;padding:18px 20px;margin-bottom:16px}
+.mision h3{color:var(--amber);margin-bottom:6px}
+.editor-wrap{display:grid;grid-template-columns:44px 1fr;background:var(--code);border:2px solid var(--steel);border-radius:14px;overflow:hidden}
+.editor-wrap:focus-within{border-color:var(--teal)}
+.gutter{padding:14px 6px;text-align:right;font-family:var(--f-code);font-size:15px;line-height:1.6;color:#4F6283;background:#060B1A;user-select:none;white-space:pre}
+.editor{width:100%;min-height:300px;resize:vertical;border:none;background:transparent;color:var(--cream);font-family:var(--f-code);font-size:15px;line-height:1.6;padding:14px;outline:none;white-space:pre;overflow:auto;tab-size:4}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.consola{background:#050A18;border:1px solid var(--steel);border-radius:12px;padding:14px 16px;font-family:var(--f-code);font-size:14px;white-space:pre-wrap;min-height:70px;color:var(--cream)}
+.consola .ok{color:var(--green)} .consola .err{color:var(--coral)} .consola .info{color:var(--muted)}
+.tests{list-style:none;padding:0;margin:12px 0}
+.tests li{padding:8px 12px;border-radius:8px;margin-bottom:6px;background:var(--bg2);border-left:4px solid var(--steel);font-size:15px}
+.tests li.pass{border-left-color:var(--green)} .tests li.fail{border-left-color:var(--coral)}
+.pistas{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.pista{background:rgba(242,197,124,.1);border:1px solid rgba(242,197,124,.4);border-radius:10px;padding:10px 14px;font-size:15px}
+
+/* ---------- PUERTA ---------- */
+.puerta{max-width:760px;margin:0 auto;text-align:center}
+.keypad-digits{display:flex;justify-content:center;gap:10px;margin:22px 0;flex-wrap:wrap}
+.keypad-digits input{width:58px;height:74px;text-align:center;font-family:var(--f-code);font-size:34px;font-weight:700;background:var(--code);color:var(--teal);border:3px solid var(--steel);border-radius:12px}
+.keypad-digits input:focus{outline:none;border-color:var(--amber)}
+.door{font-size:120px;line-height:1;margin:10px 0;transition:transform .6s}
+.door.open{transform:scale(1.2) rotate(-8deg)}
+
+/* ---------- MISIÓN FINAL ---------- */
+.temas{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+@media (max-width:820px){.temas{grid-template-columns:1fr}}
+.tema{background:var(--bg2);border:2px solid var(--line);border-radius:14px;padding:16px;text-align:left;color:var(--cream)}
+.tema.sel{border-color:var(--teal);box-shadow:0 0 16px rgba(91,192,190,.3)}
+.tema .ic{font-size:30px}
+.check{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--bg2);margin-bottom:8px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--teal);margin-top:2px;flex:none}
+.tree{font-family:var(--f-code);font-size:14px;background:var(--code);border-radius:12px;padding:14px 18px;white-space:pre;overflow-x:auto;color:var(--cream)}
+
+/* ---------- CERTIFICADO ---------- */
+.cert{max-width:900px;margin:0 auto;background:var(--cream);color:var(--bg);border-radius:20px;padding:46px;border:10px double var(--steel);text-align:center;position:relative}
+.cert h2{font-size:44px;color:var(--bg)}
+.cert .team{font-family:var(--f-head);font-size:38px;font-weight:800;color:#23706E;margin:12px 0}
+.cert .stats{display:flex;justify-content:center;gap:16px;margin:22px 0;flex-wrap:wrap}
+.cert .stats div{background:#fff;border:2px solid #DDD8BE;border-radius:12px;padding:12px 20px;min-width:140px}
+.cert .stats b{display:block;font-size:28px;font-family:var(--f-head)}
+.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-weight:800;font-size:14px;background:var(--panel);color:var(--cream);border:1px solid var(--line)}
+.cert .badge{background:#0B132B;color:#F4F1DE}
+.badge.off{opacity:.35}
+
+/* ---------- MODAL / TOAST ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(5,10,24,.75);z-index:100;display:grid;place-items:center;padding:20px}
+.modal{background:var(--panel);border:2px solid var(--teal);border-radius:18px;max-width:820px;width:100%;max-height:88vh;overflow:auto;padding:26px;box-shadow:var(--shadow)}
+.modal table{width:100%;border-collapse:collapse;font-size:15px;margin:10px 0}
+.modal th,.modal td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.modal th{background:var(--bg);color:var(--teal)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--teal);color:var(--bg);font-weight:800;padding:12px 22px;border-radius:14px;z-index:120;transition:transform .35s;box-shadow:var(--shadow);font-family:var(--f-head);max-width:90vw;text-align:center}
+.toast{opacity:0;visibility:hidden}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
+@media (max-width:1440px){.navbtn .lbl{display:none}.brand small{display:none}}
+@media (max-width:760px){.topbar{position:static;gap:8px;padding:8px 12px}.locks,#chip-team{display:none}.brand{font-size:18px}.chip{font-size:13px;padding:5px 10px}}
+#confeti{position:fixed;inset:0;pointer-events:none;z-index:110}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:20px}
+
+@media print{
+  .topbar,footer,.noprint,#confeti,.toast{display:none!important}
+  body{background:#fff}
+  main{padding:0}
+  .cert{border-color:#3A506B;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand" onclick="irA('mapa')" title="Ir al mapa">
+    <div class="logo">🤖</div>
+    <div>PyLab Escape<small>Laboratorio de Python</small></div>
+  </div>
+  <span class="chip" id="chip-team">👥 —</span>
+  <span class="chip xp" id="chip-xp">⭐ 0 XP</span>
+  <span class="chip" id="chip-time">⏱ 00:00</span>
+  <span class="chip py-off" id="chip-py" title="Estado del intérprete de Python">🐍 Python</span>
+  <div class="locks" id="locks" title="Código de la puerta"></div>
+  <button class="navbtn" onclick="irA('mapa')" title="Mapa">🗺<span class="lbl"> Mapa</span></button>
+  <button class="navbtn" onclick="irA('mision')" title="Misión final">🏁<span class="lbl"> Misión final</span></button>
+  <button class="navbtn" onclick="abrirDocente()" title="Panel docente">👩‍🏫<span class="lbl"> Docente</span></button>
+  <button class="navbtn" id="btn-sonido" onclick="toggleSonido()" title="Sonido">🔊</button>
+</header>
+
+<main id="app"></main>
+
+<footer>PyLab Escape · Secuencia didáctica de Programación avanzada con Python (INET 2026) · Prof. Rafael Mamani · Ushuaia, Tierra del Fuego</footer>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast"></div>
+<canvas id="confeti"></canvas>
+<script>
+/* =====================================================================
+   PyLab Escape · CONTENIDO DE LAS SALAS
+   Para adaptar la experiencia, editá solo este bloque.
+   Cada sala: historia → lectura → práctica guiada → desafío (da un dígito)
+   ===================================================================== */
+const py = String.raw;
+
+/* Módulo que "vive" dentro del intérprete para la Sala 8 */
+const MODULO_LABORATORIO = py`# laboratorio.py  (módulo de la caja de herramientas)
+class Componente:
+    def __init__(self, codigo, nombre, cantidad):
+        self.codigo = codigo
+        self.nombre = nombre
+        self.cantidad = cantidad
+        self.prestados = 0
+
+    def disponibles(self):
+        return self.cantidad - self.prestados
+
+
+class Sensor(Componente):
+    def __init__(self, codigo, nombre, cantidad, magnitud):
+        super().__init__(codigo, nombre, cantidad)
+        self.magnitud = magnitud
+
+
+class Placa(Componente):
+    def __init__(self, codigo, nombre, cantidad, pines):
+        super().__init__(codigo, nombre, cantidad)
+        self.pines = pines
+
+
+def armar_inventario():
+    return [
+        Sensor("S01", "Sensor ultrasónico", 8, "distancia"),
+        Sensor("S02", "Sensor de temperatura", 6, "temperatura"),
+        Componente("A01", "Servomotor", 6),
+        Placa("P01", "Arduino UNO", 5, 14),
+        Placa("P02", "ESP32", 3, 25),
+    ]
+
+
+def buscar(inventario, codigo):
+    for c in inventario:
+        if c.codigo == codigo:
+            return c
+    return None
+`;
+
+/* Clase base precargada en la Sala 7 */
+const CLASE_COMPONENTE = py`class Componente:
+    def __init__(self, codigo, nombre, cantidad):
+        self.codigo = codigo
+        self.nombre = nombre
+        self.cantidad = cantidad
+        self.prestados = 0
+
+    def disponibles(self):
+        return self.cantidad - self.prestados
+
+    def prestar(self, unidades):
+        if unidades <= self.disponibles():
+            self.prestados = self.prestados + unidades
+            return True
+        return False
+
+    def detalle(self):
+        return "-"
+`;
+
+const SALAS = [
+/* ------------------------------------------------------------ 1 */
+{
+  id: 1, icono: "🔋", titulo: "La terminal de encendido", concepto: "Variables y tipos de datos", digito: "4",
+  historia: "¡Se cortó la luz y la puerta del laboratorio se trabó con nosotros adentro! Soy <b>PyBot</b>. Para abrirla hay que reactivar mis sistemas sala por sala: cada sala superada te da un dígito del código. Empecemos por mi memoria… sin <b>variables</b> no recuerdo nada.",
+  lectura: [
+    ["h", "¿Qué es una variable?"],
+    ["p", "Es una <b>caja con etiqueta</b> donde el programa guarda un dato para usarlo después. El nombre es la etiqueta; el valor, lo que hay adentro. Se crea con el signo <code>=</code>, que en Python significa <i>guardá esto acá</i>."],
+    ["code", py`robot = "PyBot"        # str   → texto (va entre comillas)
+bateria = 75           # int   → número entero
+voltaje = 4.8          # float → número con decimales (se usa punto)
+encendido = True       # bool  → verdadero o falso
+
+print(robot, "tiene", bateria, "% de batería")`],
+    ["h", "Las variables cambian"],
+    ["p", "Si le damos un valor nuevo, el anterior se pierde. Python primero resuelve la derecha y después guarda en la izquierda:"],
+    ["code", py`bateria = 75
+bateria = bateria - 10     # 75 - 10 → ahora vale 65
+print(f"Me queda {bateria}% de batería")`],
+    ["tip", "💡 <b>f-strings:</b> poné una <code>f</code> antes de las comillas y meté variables entre llaves <code>{ }</code>. Es la forma más cómoda de armar mensajes."],
+    ["ojo", "⚠️ <code>input()</code> <b>siempre</b> devuelve texto. Si necesitás un número: <code>edad = int(input(\"Edad: \"))</code>."],
+    ["p", "Para nombrar variables: minúsculas, sin espacios ni tildes, y que digan qué guardan (<code>bateria</code> es mejor que <code>b</code>)."]
+  ],
+  practica: [
+    { tipo: "mc", pregunta: "¿Qué muestra este código?", codigo: py`bateria = 40
+bateria = bateria + 25
+print("Batería:", bateria)`,
+      opciones: ["Batería: 40", "Batería: 65", "Batería: bateria + 25", "Error"], correcta: 1,
+      explicacion: "Primero se calcula <code>40 + 25</code> y el resultado reemplaza al valor anterior." },
+    { tipo: "mc", pregunta: "El usuario escribe <b>5</b>. ¿Qué se muestra?", codigo: py`x = input("Número: ")
+print(x * 2)`,
+      opciones: ["10", "55", "Error", "x * 2"], correcta: 1,
+      explicacion: "¡Trampa clásica! <code>input</code> devuelve el texto \"5\" y multiplicar un texto por 2 lo repite: \"55\". Para sumar hay que convertir con <code>int()</code>." },
+    { tipo: "blank", pregunta: "Completá para pedir el nombre y saludar con un f-string:", codigo: py`nombre = [[0]]("¿Cómo te llamás? ")
+print([[1]]"Hola, {nombre}")`,
+      respuestas: [["input"], ["f"]], explicacion: "<code>input()</code> pide el dato y la <code>f</code> habilita las llaves dentro del texto." }
+  ],
+  desafio: {
+    consigna: "Reactivá la memoria de PyBot. Creá tres variables: <code>robot</code> con el texto <b>\"PyBot\"</b>, <code>bateria</code> con el número <b>75</b> y <code>encendido</code> con <b>True</b>. Después mostrá con un f-string exactamente:<br><code>PyBot tiene 75% de batería</code>",
+    inicial: "# Escribí tu código acá\n",
+    tests: [
+      { desc: "La variable robot guarda \"PyBot\"", check: py`assert robot == "PyBot", "robot tiene que valer \"PyBot\" (¿lo pusiste entre comillas?)"` },
+      { desc: "La variable bateria guarda el número 75", check: py`assert bateria == 75 and type(bateria) == int, "bateria tiene que ser el número 75, sin comillas"` },
+      { desc: "La variable encendido es True", check: py`assert encendido is True, "encendido tiene que ser True (con T mayúscula y sin comillas)"` },
+      { desc: "Se imprime el mensaje exacto", check: py`assert "PyBot tiene 75% de batería" in _salida, "No encontré el texto 'PyBot tiene 75% de batería' en la salida"` }
+    ],
+    requiere: [["print\\s*\\(", "Falta un print()"]],
+    pistas: ["Los textos van entre comillas; los números y True, no.", "True y False llevan la primera letra en mayúscula.", "La última línea puede ser: print(f\"{robot} tiene {bateria}% de batería\")"],
+    solucion: py`robot = "PyBot"
+bateria = 75
+encendido = True
+print(f"{robot} tiene {bateria}% de batería")`
+  }
+},
+/* ------------------------------------------------------------ 2 */
+{
+  id: 2, icono: "🚪", titulo: "El sensor de la puerta", concepto: "Estructuras condicionales", digito: "7",
+  historia: "¡Bien! Ya recuerdo cosas. Mi sensor de distancia funciona, pero no sé qué hacer con lo que mide. Necesito <b>tomar decisiones</b>: si algo está cerca, frenar; si no, avanzar.",
+  lectura: [
+    ["h", "if · elif · else"],
+    ["p", "Un condicional ejecuta un bloque <b>solo si</b> una condición es verdadera. Python revisa de arriba hacia abajo y entra en el <b>primer</b> bloque que se cumple; los demás los saltea."],
+    ["code", py`distancia = 25
+
+if distancia < 10:
+    print("¡ALTO!")
+elif distancia < 30:
+    print("Precaución, bajá la velocidad")
+else:
+    print("Camino libre")`],
+    ["tip", "💡 Los dos puntos <code>:</code> y la <b>sangría</b> (4 espacios) son obligatorios: así Python sabe qué líneas pertenecen a cada bloque."],
+    ["h", "Comparar y combinar"],
+    ["p", "Comparadores: <code>==</code> igual, <code>!=</code> distinto, <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code>. Para juntar condiciones: <code>and</code> (las dos), <code>or</code> (alguna), <code>not</code> (lo contrario)."],
+    ["code", py`bateria = 15
+cargando = False
+if bateria < 20 and not cargando:
+    print("Conectame al cargador")`],
+    ["ojo", "⚠️ <code>=</code> <b>guarda</b> un valor; <code>==</code> <b>compara</b>. Escribir <code>if x = 5:</code> es un error de sintaxis."]
+  ],
+  practica: [
+    { tipo: "mc", pregunta: "¿Qué letra se imprime?", codigo: py`temperatura = 35
+if temperatura > 40:
+    print("A")
+elif temperatura > 30:
+    print("B")
+elif temperatura > 20:
+    print("C")
+else:
+    print("D")`,
+      opciones: ["A", "B", "B y C", "D"], correcta: 1,
+      explicacion: "35 > 30 es verdadero y Python entra ahí. Aunque 35 > 20 también se cumple, nunca llega a revisarlo." },
+    { tipo: "mc", pregunta: "¿Cuál de estas líneas tiene un error?", codigo: "",
+      opciones: ["if bateria == 100:", "if bateria = 100:", "if bateria >= 100:", "if not bateria:"], correcta: 1,
+      explicacion: "Para comparar se usa <code>==</code>. Un solo <code>=</code> es asignación y no se puede usar dentro de un if." },
+    { tipo: "parsons", pregunta: "Ordená las líneas para que el programa avise si la batería está baja:",
+      lineas: ["bateria = 15", "if bateria < 20:", "    print(\"Batería baja\")", "else:", "    print(\"Todo bien\")"],
+      explicacion: "Primero se crea la variable, después la condición, y cada print va sangrado debajo de su bloque." }
+  ],
+  desafio: {
+    consigna: "La variable <code>distancia</code> <b>ya existe</b>: la carga el sensor y cambia en cada prueba (no la escribas vos). Imprimí:<br>• <code>ALTO</code> si es menor que 10<br>• <code>PRECAUCION</code> si es menor que 30<br>• <code>LIBRE</code> en cualquier otro caso",
+    inicial: "# distancia ya tiene un valor. Completá la decisión:\n",
+    ejemploSetup: "distancia = 18",
+    tests: [
+      { desc: "Con distancia = 5 imprime ALTO", setup: "distancia = 5", check: py`assert _salida.strip() == "ALTO", f"Con distancia = 5 esperaba ALTO y salió: {_salida.strip()!r}"` },
+      { desc: "Con distancia = 20 imprime PRECAUCION", setup: "distancia = 20", check: py`assert _salida.strip() == "PRECAUCION", f"Con distancia = 20 esperaba PRECAUCION y salió: {_salida.strip()!r}"` },
+      { desc: "Con distancia = 30 imprime LIBRE (¡ojo el borde!)", setup: "distancia = 30", check: py`assert _salida.strip() == "LIBRE", f"Con distancia = 30 esperaba LIBRE y salió: {_salida.strip()!r}"` },
+      { desc: "Con distancia = 80 imprime LIBRE", setup: "distancia = 80", check: py`assert _salida.strip() == "LIBRE", f"Con distancia = 80 esperaba LIBRE y salió: {_salida.strip()!r}"` }
+    ],
+    requiere: [["\\bif\\b", "Falta el if"], ["\\belse\\b|\\belif\\b", "Falta elif o else"]],
+    prohibe: [["^\\s*distancia\\s*=", "No le asignes valor a distancia: la carga el sensor"]],
+    pistas: ["Necesitás tres caminos: if, elif y else.", "Probá en orden: primero la condición más chica (< 10), después < 30.", "if distancia < 10:\n    print(\"ALTO\")\nelif distancia < 30:\n    ..."],
+    solucion: py`if distancia < 10:
+    print("ALTO")
+elif distancia < 30:
+    print("PRECAUCION")
+else:
+    print("LIBRE")`
+  }
+},
+/* ------------------------------------------------------------ 3 */
+{
+  id: 3, icono: "🗄️", titulo: "El estante de componentes", concepto: "Colecciones: listas y diccionarios", digito: "2",
+  historia: "El estante está hecho un lío. Si guardo cada pieza en una variable suelta voy a necesitar cien variables… ¡Necesito <b>colecciones</b> para guardar muchos datos juntos!",
+  lectura: [
+    ["h", "Listas: muchos datos en orden"],
+    ["p", "Una lista va entre corchetes <code>[ ]</code>. Cada elemento tiene una posición (<b>índice</b>) que arranca en <b>0</b>."],
+    ["code", py`piezas = ["sensor", "motor", "led"]
+print(piezas[0])        # sensor   (¡se cuenta desde 0!)
+print(piezas[-1])       # led      (el último)
+
+piezas.append("servo")  # agrega al final
+print(len(piezas))      # 4 → cantidad de elementos
+print(piezas)`],
+    ["h", "Diccionarios: datos con nombre"],
+    ["p", "Un diccionario guarda pares <b>clave: valor</b> entre llaves <code>{ }</code>. En vez de buscar por posición, buscás por nombre, como en una agenda."],
+    ["code", py`stock = {"sensor": 8, "motor": 4}
+print(stock["motor"])          # 4
+stock["led"] = 20              # clave nueva → se agrega
+stock["motor"] = stock["motor"] - 1   # se modifica
+print(stock)`],
+    ["tip", "💡 ¿Cuál uso? <b>Lista</b> cuando importa el orden o tenés muchos datos del mismo tipo. <b>Diccionario</b> cuando querés encontrar un dato por su nombre."]
+  ],
+  practica: [
+    { tipo: "mc", pregunta: "¿Qué se imprime?", codigo: py`piezas = ["placa", "sensor", "motor"]
+print(piezas[1])`,
+      opciones: ["placa", "sensor", "motor", "Error"], correcta: 1,
+      explicacion: "Los índices arrancan en 0: placa es el 0, sensor el 1." },
+    { tipo: "mc", pregunta: "¿Cómo queda el diccionario?", codigo: py`stock = {"led": 20, "servo": 6}
+stock["servo"] = stock["servo"] - 2
+print(stock)`,
+      opciones: ["{'led': 20, 'servo': 6}", "{'led': 20, 'servo': 4}", "{'led': 18, 'servo': 4}", "Error"], correcta: 1,
+      explicacion: "Solo cambia el valor de la clave \"servo\": 6 - 2 = 4." },
+    { tipo: "blank", pregunta: "Completá para agregar un servo y mostrar cuántas piezas hay:", codigo: py`kit = ["led", "buzzer"]
+kit.[[0]]("servo")
+print([[1]](kit))`,
+      respuestas: [["append"], ["len"]], explicacion: "<code>append</code> agrega al final y <code>len</code> cuenta los elementos: 3." }
+  ],
+  desafio: {
+    consigna: "Ordená el estante:<br>1. Creá la lista <code>componentes</code> con <b>\"sensor\"</b>, <b>\"motor\"</b> y <b>\"led\"</b> (en ese orden) y agregale <b>\"servo\"</b> usando <code>append</code>.<br>2. Creá el diccionario <code>stock</code> con <b>\"sensor\": 8</b> y <b>\"motor\": 4</b>, y después agregale la clave <b>\"servo\"</b> con <b>6</b>.<br>3. Imprimí la cantidad de elementos de la lista con <code>len</code>.",
+    inicial: "# 1) lista\n\n# 2) diccionario\n\n# 3) cantidad\n",
+    tests: [
+      { desc: "La lista tiene sensor, motor, led y servo", check: py`assert componentes == ["sensor", "motor", "led", "servo"], f"La lista quedó así: {componentes}"` },
+      { desc: "El diccionario tiene las tres claves correctas", check: py`assert stock == {"sensor": 8, "motor": 4, "servo": 6}, f"El diccionario quedó así: {stock}"` },
+      { desc: "Se imprime la cantidad (4)", check: py`assert "4" in _salida, "No veo el 4 en la salida: ¿imprimiste len(componentes)?"` }
+    ],
+    requiere: [["\\.append\\s*\\(", "Usá append para agregar el servo"], ["len\\s*\\(", "Usá len() para contar"]],
+    pistas: ["Las listas van con corchetes [ ] y los diccionarios con llaves { }.", "Para agregar al diccionario: stock[\"servo\"] = 6", "print(len(componentes))"],
+    solucion: py`componentes = ["sensor", "motor", "led"]
+componentes.append("servo")
+stock = {"sensor": 8, "motor": 4}
+stock["servo"] = 6
+print(len(componentes))`
+  }
+},
+/* ------------------------------------------------------------ 4 */
+{
+  id: 4, icono: "🔁", titulo: "La cinta transportadora", concepto: "Bucles for y while", digito: "9",
+  historia: "La cinta trae cajas llenas de piezas. Contarlas una por una a mano es eterno… Necesito <b>repetir instrucciones</b> automáticamente.",
+  lectura: [
+    ["h", "for: recorrer una colección"],
+    ["p", "El <code>for</code> toma cada elemento de una lista, uno por vuelta, y ejecuta el bloque con él. Combinado con un <b>acumulador</b> (una variable que arranca en 0 y va sumando) sirve para totales."],
+    ["code", py`cajas = [3, 5, 2]
+total = 0                     # acumulador
+for cantidad in cajas:
+    total = total + cantidad
+print("Piezas:", total)       # 10`],
+    ["p", "Con <code>range(n)</code> repetís algo <i>n</i> veces (cuenta desde 0 hasta n-1):"],
+    ["code", py`for i in range(3):
+    print("Vuelta", i)`],
+    ["h", "while: repetir mientras se cumpla algo"],
+    ["code", py`bateria = 100
+while bateria > 0:
+    bateria = bateria - 40
+    print("Batería:", bateria)
+print("¡Me apagué!")`],
+    ["ojo", "⚠️ En un <code>while</code>, algo adentro tiene que cambiar la condición. Si no, el bucle no termina nunca (bucle infinito)."]
+  ],
+  practica: [
+    { tipo: "mc", pregunta: "¿Qué se imprime?", codigo: py`for i in range(1, 4):
+    print(i * 2)`,
+      opciones: ["2 4 6 8", "2 4 6", "1 2 3", "0 2 4"], correcta: 1,
+      explicacion: "<code>range(1, 4)</code> da 1, 2 y 3 (el 4 no entra). Multiplicados por 2: 2, 4, 6." },
+    { tipo: "mc", pregunta: "¿Qué número se imprime al final?", codigo: py`contador = 0
+while contador < 3:
+    contador = contador + 1
+print(contador)`,
+      opciones: ["0", "2", "3", "Nunca termina"], correcta: 2,
+      explicacion: "Suma de a 1 mientras sea menor que 3. Cuando llega a 3 la condición es falsa y sale." },
+    { tipo: "parsons", pregunta: "Ordená las líneas para contar cuántos sensores hay en la lista:",
+      lineas: ["piezas = [\"sensor\", \"motor\", \"sensor\"]", "contador = 0", "for pieza in piezas:", "    if pieza == \"sensor\":", "        contador = contador + 1", "print(contador)"],
+      explicacion: "El contador se crea antes del bucle y el print va después, sin sangría, para que se ejecute una sola vez." }
+  ],
+  desafio: {
+    consigna: "La lista <code>cajas</code> <b>ya existe</b> y cambia en cada prueba. Con un <code>for</code>:<br>1. Sumá todas las piezas en una variable <code>total</code> e imprimí <code>Total: &lt;número&gt;</code><br>2. Contá cuántas cajas traen <b>más de 4</b> piezas e imprimí <code>Grandes: &lt;número&gt;</code>",
+    inicial: "# cajas ya existe, por ejemplo [3, 5, 2, 8]\ntotal = 0\ngrandes = 0\n",
+    ejemploSetup: "cajas = [3, 5, 2, 8]",
+    tests: [
+      { desc: "Con [3, 5, 2, 8] → Total: 18 y Grandes: 2", setup: "cajas = [3, 5, 2, 8]", check: py`assert "Total: 18" in _salida, "Esperaba 'Total: 18'"
+assert "Grandes: 2" in _salida, "Esperaba 'Grandes: 2'"` },
+      { desc: "Con [1, 1] → Total: 2 y Grandes: 0", setup: "cajas = [1, 1]", check: py`assert "Total: 2" in _salida, "Esperaba 'Total: 2'"
+assert "Grandes: 0" in _salida, "Esperaba 'Grandes: 0'"` },
+      { desc: "Con [10, 4, 7] → Total: 21 y Grandes: 2 (4 no es más que 4)", setup: "cajas = [10, 4, 7]", check: py`assert "Total: 21" in _salida, "Esperaba 'Total: 21'"
+assert "Grandes: 2" in _salida, "Esperaba 'Grandes: 2'"` }
+    ],
+    requiere: [["\\bfor\\b", "Usá un for para recorrer la lista"]],
+    prohibe: [["^\\s*cajas\\s*=", "No le asignes valor a cajas: ya viene cargada"], ["sum\\s*\\(", "Hacelo con el for y un acumulador, sin sum()"]],
+    pistas: ["Dentro del for: total = total + caja", "Para contar las grandes: if caja > 4: grandes = grandes + 1", "Los print van al final, fuera del for: print(\"Total:\", total)"],
+    solucion: py`total = 0
+grandes = 0
+for caja in cajas:
+    total = total + caja
+    if caja > 4:
+        grandes = grandes + 1
+print("Total:", total)
+print("Grandes:", grandes)`
+  }
+},
+/* ------------------------------------------------------------ 5 */
+{
+  id: 5, icono: "🎛️", titulo: "El panel de control", concepto: "Funciones", digito: "5",
+  historia: "Cada vez que calculo mi consumo repito las mismas líneas. Si las guardo con un nombre, las puedo usar mil veces: eso es una <b>función</b>.",
+  lectura: [
+    ["h", "def: crear tus propias instrucciones"],
+    ["p", "Una función es un bloque de código con nombre. Recibe datos (<b>parámetros</b>), hace algo y puede <b>devolver</b> un resultado con <code>return</code>."],
+    ["code", py`def consumo(voltaje, corriente):
+    potencia = voltaje * corriente
+    return potencia
+
+resultado = consumo(5, 2)
+print("Consumo:", resultado, "W")
+print("Otro:", consumo(12, 0.5), "W")`],
+    ["tip", "💡 <code>print</code> <b>muestra</b> en pantalla; <code>return</code> <b>entrega</b> el valor a quien llamó la función para que lo siga usando. Son cosas distintas."],
+    ["h", "Parámetros con valor por defecto"],
+    ["code", py`def saludar(nombre="estudiante"):
+    print(f"Hola, {nombre}. Soy PyBot 🤖")
+
+saludar("Lu")
+saludar()`],
+    ["p", "Ventajas: no repetís código, el programa se lee mejor y si hay un error lo arreglás en un solo lugar."]
+  ],
+  practica: [
+    { tipo: "mc", pregunta: "¿Qué se imprime?", codigo: py`def doble(n):
+    return n * 2
+
+print(doble(doble(3)))`,
+      opciones: ["6", "9", "12", "Error"], correcta: 2,
+      explicacion: "Primero se resuelve la de adentro: doble(3) = 6. Después doble(6) = 12." },
+    { tipo: "mc", pregunta: "¿Qué se imprime?", codigo: py`def f():
+    print("hola")
+
+x = f()
+print(x)`,
+      opciones: ["hola", "hola\nNone", "None", "Error"], correcta: 1,
+      explicacion: "La función muestra \"hola\" pero no tiene return, así que devuelve <code>None</code>, que queda guardado en x." },
+    { tipo: "blank", pregunta: "Completá la función que calcula el área de una placa:", codigo: py`[[0]] area(base, altura):
+    [[1]] base * altura`,
+      respuestas: [["def"], ["return"]], explicacion: "<code>def</code> define la función y <code>return</code> devuelve el resultado." }
+  ],
+  desafio: {
+    consigna: "Programá el panel con dos funciones:<br>1. <code>consumo(voltaje, corriente)</code> que <b>devuelva</b> voltaje × corriente.<br>2. <code>estado_bateria(porcentaje)</code> que devuelva <code>\"CRITICA\"</code> si es menor que 20, <code>\"MEDIA\"</code> si es menor que 60 y <code>\"LLENA\"</code> en otro caso.",
+    inicial: "def consumo(voltaje, corriente):\n    pass   # reemplazá esta línea\n\n\ndef estado_bateria(porcentaje):\n    pass   # reemplazá esta línea\n\n\n# Podés probarlas acá:\nprint(consumo(5, 2))\nprint(estado_bateria(45))\n",
+    tests: [
+      { desc: "consumo(5, 2) devuelve 10", check: py`r = consumo(5, 2)
+assert r is not None, "consumo devolvió None: ¿te faltó el return?"
+assert r == 10, f"consumo(5, 2) devolvió {r}"` },
+      { desc: "consumo(3.3, 0.5) devuelve 1.65", check: py`assert abs(consumo(3.3, 0.5) - 1.65) < 0.001, "consumo(3.3, 0.5) debería dar 1.65"` },
+      { desc: "estado_bateria(10) → CRITICA", check: py`r = estado_bateria(10)
+assert r is not None, "estado_bateria devolvió None: usá return, no print"
+assert r == "CRITICA", f"estado_bateria(10) devolvió {r!r}"` },
+      { desc: "estado_bateria(20) y (59) → MEDIA", check: py`assert estado_bateria(20) == "MEDIA", f"estado_bateria(20) devolvió {estado_bateria(20)!r}"
+assert estado_bateria(59) == "MEDIA", f"estado_bateria(59) devolvió {estado_bateria(59)!r}"` },
+      { desc: "estado_bateria(60) y (100) → LLENA", check: py`assert estado_bateria(60) == "LLENA", f"estado_bateria(60) devolvió {estado_bateria(60)!r}"
+assert estado_bateria(100) == "LLENA", f"estado_bateria(100) devolvió {estado_bateria(100)!r}"` }
+    ],
+    requiere: [["def\\s+consumo", "Falta definir consumo"], ["def\\s+estado_bateria", "Falta definir estado_bateria"], ["return", "Las funciones tienen que usar return"]],
+    pistas: ["Adentro de consumo alcanza una línea: return voltaje * corriente", "En estado_bateria usá if / elif / else y en cada camino un return.", "if porcentaje < 20:\n    return \"CRITICA\"\nelif porcentaje < 60:\n    return \"MEDIA\""],
+    solucion: py`def consumo(voltaje, corriente):
+    return voltaje * corriente
+
+
+def estado_bateria(porcentaje):
+    if porcentaje < 20:
+        return "CRITICA"
+    elif porcentaje < 60:
+        return "MEDIA"
+    else:
+        return "LLENA"`
+  }
+},
+/* ------------------------------------------------------------ 6 */
+{
+  id: 6, icono: "🏭", titulo: "La fábrica de componentes", concepto: "Clases y objetos", digito: "1",
+  historia: "Ahora sí: vamos a rearmar el <b>sistema de préstamos</b> del laboratorio. Cada componente tiene datos (código, nombre, cantidad) y acciones (prestar, devolver). Juntar datos y acciones en un solo molde es… ¡una <b>clase</b>!",
+  lectura: [
+    ["h", "Clase = molde · Objeto = pieza"],
+    ["p", "Una <b>clase</b> describe cómo es algo: qué datos tiene (<b>atributos</b>) y qué sabe hacer (<b>métodos</b>). Con ese molde fabricamos <b>objetos</b>: cada uno con sus propios valores."],
+    ["code", py`class Componente:
+    def __init__(self, codigo, nombre, cantidad):   # constructor
+        self.codigo = codigo
+        self.nombre = nombre
+        self.cantidad = cantidad
+        self.prestados = 0
+
+    def disponibles(self):                           # método
+        return self.cantidad - self.prestados
+
+
+servo = Componente("A01", "Servomotor", 6)     # instanciar
+led = Componente("L01", "LED rojo", 30)
+servo.prestados = 2
+print(servo.nombre, "→", servo.disponibles(), "libres")
+print(led.nombre, "→", led.disponibles(), "libres")`],
+    ["tip", "💡 <code>__init__</code> se ejecuta solo al crear el objeto y carga sus atributos. <code>self</code> es <b>el objeto que está trabajando</b>: en <code>servo.disponibles()</code>, self es servo."],
+    ["h", "Muchos objetos en una lista"],
+    ["code", py`inventario = [
+    Componente("S01", "Sensor ultrasónico", 8),
+    Componente("P01", "Arduino UNO", 5),
+]
+for c in inventario:
+    print(c.codigo, c.nombre, c.disponibles())`],
+    ["p", "Así se juntan todos los temas: <b>clases</b> para modelar, <b>listas</b> para guardar objetos y <b>bucles</b> para recorrerlos."]
+  ],
+  practica: [
+    { tipo: "mc", pregunta: "En el método <code>disponibles(self)</code>, ¿qué es <code>self</code>?", codigo: "",
+      opciones: ["El nombre de la clase", "El objeto que está usando el método", "Una variable global", "Una palabra que se puede borrar"], correcta: 1,
+      explicacion: "Python pasa automáticamente el objeto que hizo la llamada. Así cada objeto trabaja con sus propios datos." },
+    { tipo: "mc", pregunta: "¿Qué se imprime?", codigo: py`led1 = Componente("L1", "LED", 10)
+led2 = Componente("L2", "LED", 5)
+led1.prestados = 3
+print(led2.disponibles())`,
+      opciones: ["2", "5", "7", "10"], correcta: 1,
+      explicacion: "Cambiamos led1, no led2. Cada objeto guarda sus propios atributos: led2 sigue con 5 libres." },
+    { tipo: "parsons", pregunta: "Ordená las líneas para crear la clase Robot y usarla:",
+      lineas: ["class Robot:", "    def __init__(self, nombre):", "        self.nombre = nombre", "    def saludar(self):", "        print(\"Soy\", self.nombre)", "r = Robot(\"PyBot\")", "r.saludar()"],
+      explicacion: "Primero la clase con su constructor y métodos (sangrados); después, afuera, se crea el objeto y se lo usa." }
+  ],
+  desafio: {
+    consigna: "Creá la clase <code>Componente</code> con:<br>• un constructor que reciba <code>codigo</code>, <code>nombre</code> y <code>cantidad</code>, y arranque <code>prestados</code> en 0<br>• <code>disponibles()</code> → cantidad − prestados<br>• <code>prestar(unidades)</code> → si alcanzan, suma a prestados y devuelve <code>True</code>; si no alcanzan, devuelve <code>False</code> sin cambiar nada<br>• <code>devolver(unidades)</code> → resta de prestados",
+    inicial: "class Componente:\n    def __init__(self, codigo, nombre, cantidad):\n        pass\n\n\n# Prueba:\nsensor = Componente(\"S01\", \"Sensor ultrasónico\", 5)\nprint(sensor.prestar(3), sensor.disponibles())\n",
+    tests: [
+      { desc: "El constructor guarda los datos y prestados arranca en 0", check: py`c = Componente("S01", "Sensor", 5)
+assert c.codigo == "S01" and c.nombre == "Sensor" and c.cantidad == 5, "El constructor no guarda codigo, nombre y cantidad en self"
+assert c.prestados == 0, "prestados tiene que arrancar en 0"` },
+      { desc: "disponibles() calcula bien", check: py`c = Componente("S01", "Sensor", 5)
+assert c.disponibles() == 5, f"disponibles() devolvió {c.disponibles()}"` },
+      { desc: "prestar(3) devuelve True y descuenta", check: py`c = Componente("S01", "Sensor", 5)
+assert c.prestar(3) is True, "prestar(3) con 5 libres tiene que devolver True"
+assert c.disponibles() == 2, f"Después de prestar 3 deberían quedar 2 y quedan {c.disponibles()}"` },
+      { desc: "prestar más de lo disponible devuelve False y no cambia nada", check: py`c = Componente("S01", "Sensor", 5)
+c.prestar(3)
+assert c.prestar(4) is False, "Con 2 libres, prestar(4) tiene que devolver False"
+assert c.prestados == 3, "Si no alcanza, prestados no debe cambiar"` },
+      { desc: "devolver(1) resta de prestados", check: py`c = Componente("S01", "Sensor", 5)
+c.prestar(3)
+c.devolver(1)
+assert c.prestados == 2, f"Después de devolver 1, prestados debería ser 2 y es {c.prestados}"` }
+    ],
+    requiere: [["class\\s+Componente", "Falta la clase Componente"], ["__init__", "Falta el constructor __init__"], ["self", "Los atributos se guardan con self"]],
+    pistas: ["En el constructor: self.codigo = codigo (y lo mismo con los otros), más self.prestados = 0", "prestar: if unidades <= self.disponibles(): ... return True   y afuera del if: return False", "def devolver(self, unidades):\n    self.prestados = self.prestados - unidades"],
+    solucion: py`class Componente:
+    def __init__(self, codigo, nombre, cantidad):
+        self.codigo = codigo
+        self.nombre = nombre
+        self.cantidad = cantidad
+        self.prestados = 0
+
+    def disponibles(self):
+        return self.cantidad - self.prestados
+
+    def prestar(self, unidades):
+        if unidades <= self.disponibles():
+            self.prestados = self.prestados + unidades
+            return True
+        return False
+
+    def devolver(self, unidades):
+        self.prestados = self.prestados - unidades`
+  }
+},
+/* ------------------------------------------------------------ 7 */
+{
+  id: 7, icono: "🧬", titulo: "El árbol de familia", concepto: "Herencia y sobreescritura", digito: "8",
+  historia: "Sensores, motores y placas son todos componentes… pero cada uno tiene lo suyo. No quiero copiar y pegar la clase tres veces: ¡que la <b>hereden</b>!",
+  lectura: [
+    ["h", "Clase padre y clases hijas"],
+    ["p", "Una clase hija se declara poniendo la clase padre entre paréntesis. Recibe <b>todos</b> sus atributos y métodos, y puede agregar los suyos."],
+    ["code", py`class Componente:
+    def __init__(self, codigo, nombre, cantidad):
+        self.codigo = codigo
+        self.nombre = nombre
+        self.cantidad = cantidad
+        self.prestados = 0
+    def disponibles(self):
+        return self.cantidad - self.prestados
+    def detalle(self):
+        return "-"
+
+class Sensor(Componente):                     # Sensor ES UN Componente
+    def __init__(self, codigo, nombre, cantidad, magnitud):
+        super().__init__(codigo, nombre, cantidad)   # constructor del padre
+        self.magnitud = magnitud                     # atributo propio
+
+    def detalle(self):                        # sobreescritura
+        return "mide " + self.magnitud
+
+s = Sensor("S01", "Ultrasónico", 8, "distancia")
+print(s.disponibles())   # heredado del padre
+print(s.detalle())       # versión propia de Sensor`],
+    ["tip", "💡 <code>super().__init__(...)</code> ejecuta el constructor del padre. Es lo mismo que escribir <code>Componente.__init__(self, ...)</code>, como en el material del curso."],
+    ["h", "Sobreescritura"],
+    ["p", "Si la hija define un método con el <b>mismo nombre</b> que el padre, gana el de la hija. Así cada tipo de componente puede comportarse a su manera, y el resto del programa lo llama igual."],
+    ["p", "Python también permite <b>herencia múltiple</b>: <code>class MotoElectrica(Vehiculo, Electrico)</code>. Si dos padres tienen el mismo método, tiene prioridad el que se escribió primero."]
+  ],
+  practica: [
+    { tipo: "mc", pregunta: "¿Qué se imprime?", codigo: py`class A:
+    def hola(self):
+        return "A"
+class B(A):
+    def hola(self):
+        return "B"
+class C(B):
+    pass
+
+print(C().hola())`,
+      opciones: ["A", "B", "C", "Error"], correcta: 1,
+      explicacion: "C no tiene hola(), así que la busca en su padre B, que la sobreescribió. Python sube por el árbol hasta encontrarla." },
+    { tipo: "mc", pregunta: "Si en el constructor de Sensor <b>no</b> llamás a <code>super().__init__(...)</code>, ¿qué pasa?", codigo: "",
+      opciones: ["Nada, Python lo hace solo", "El sensor no tiene codigo, nombre, cantidad ni prestados", "Se borra la clase padre", "El sensor deja de ser un Componente"], correcta: 1,
+      explicacion: "Al escribir un __init__ propio, el del padre ya no se ejecuta solo. Hay que llamarlo para que cargue los atributos comunes." },
+    { tipo: "blank", pregunta: "Completá para que Placa herede de Componente:", codigo: py`class Placa([[0]]):
+    def __init__(self, codigo, nombre, cantidad, pines):
+        [[1]]().__init__(codigo, nombre, cantidad)
+        self.pines = pines`,
+      respuestas: [["Componente"], ["super"]], explicacion: "La clase padre va entre paréntesis y <code>super()</code> llama a su constructor." }
+  ],
+  desafio: {
+    consigna: "La clase <code>Componente</code> <b>ya está cargada</b> (con <code>prestar</code> y un <code>detalle()</code> que devuelve \"-\"). Creá:<br>1. <code>Sensor(Componente)</code> con el atributo extra <code>magnitud</code> y un <code>detalle()</code> que devuelva <code>\"mide \" + magnitud</code>.<br>2. <code>Placa(Componente)</code> con el atributo extra <code>pines</code>, que <b>sobreescriba</b> <code>prestar(unidades)</code>: si piden más de 1, devuelve <code>False</code>; si no, usa el <code>prestar</code> del padre.",
+    preload: CLASE_COMPONENTE,
+    inicial: "# Componente ya existe. Creá las clases hijas:\n\nclass Sensor(Componente):\n    pass\n\n\nclass Placa(Componente):\n    pass\n",
+    tests: [
+      { desc: "Sensor hereda de Componente y guarda magnitud", check: py`s = Sensor("S01", "Ultrasónico", 8, "distancia")
+assert isinstance(s, Componente), "Sensor tiene que heredar de Componente"
+assert s.magnitud == "distancia", "Falta guardar self.magnitud"
+assert s.disponibles() == 8, "Sensor no heredó bien: ¿llamaste a super().__init__?"` },
+      { desc: "Sensor.detalle() devuelve 'mide distancia'", check: py`s = Sensor("S01", "Ultrasónico", 8, "distancia")
+assert s.detalle() == "mide distancia", f"detalle() devolvió {s.detalle()!r}"` },
+      { desc: "Placa guarda pines y hereda lo demás", check: py`p = Placa("P01", "Arduino UNO", 5, 14)
+assert isinstance(p, Componente), "Placa tiene que heredar de Componente"
+assert p.pines == 14 and p.cantidad == 5, "Placa no guarda pines o no llamó a super().__init__"` },
+      { desc: "Placa.prestar(2) → False · prestar(1) → True", check: py`p = Placa("P01", "Arduino UNO", 5, 14)
+assert p.prestar(2) is False, "Una placa no se puede prestar de a 2"
+assert p.prestados == 0, "Si se rechaza, prestados no cambia"
+assert p.prestar(1) is True, "prestar(1) tiene que funcionar"
+assert p.prestados == 1, "Después de prestar 1, prestados debería ser 1"` }
+    ],
+    requiere: [["class\\s+Sensor\\s*\\(\\s*Componente", "Sensor tiene que heredar de Componente"], ["class\\s+Placa\\s*\\(\\s*Componente", "Placa tiene que heredar de Componente"], ["super\\s*\\(|Componente\\.__init__", "Llamá al constructor del padre"]],
+    pistas: ["El constructor de Sensor recibe codigo, nombre, cantidad, magnitud y llama a super().__init__(codigo, nombre, cantidad).", "En Placa, prestar empieza con: if unidades > 1: return False", "Después del if: return super().prestar(unidades)"],
+    solucion: py`class Sensor(Componente):
+    def __init__(self, codigo, nombre, cantidad, magnitud):
+        super().__init__(codigo, nombre, cantidad)
+        self.magnitud = magnitud
+
+    def detalle(self):
+        return "mide " + self.magnitud
+
+
+class Placa(Componente):
+    def __init__(self, codigo, nombre, cantidad, pines):
+        super().__init__(codigo, nombre, cantidad)
+        self.pines = pines
+
+    def prestar(self, unidades):
+        if unidades > 1:
+            return False
+        return super().prestar(unidades)`
+  }
+},
+/* ------------------------------------------------------------ 8 */
+{
+  id: 8, icono: "🧰", titulo: "La caja de herramientas", concepto: "Módulos, paquetes y librerías", digito: "3",
+  historia: "Mi código creció tanto que ya no entra en un solo archivo. Lo separé en <b>módulos</b>… pero me olvidé cómo traerlos. ¡Es la última sala antes de la puerta!",
+  lectura: [
+    ["h", "Un módulo es un archivo .py"],
+    ["p", "Cuando un programa crece, lo dividimos en archivos. Cada archivo <code>.py</code> es un <b>módulo</b> y lo que tiene adentro (variables, funciones, clases) se puede usar desde otro con <code>import</code>."],
+    ["code", py`import math                     # librería que viene con Python
+from random import choice       # traigo solo una función
+print(math.sqrt(16))
+print(choice(["sensor", "motor", "led"]))
+
+# laboratorio.py es un módulo nuestro (ya está en esta sala)
+from laboratorio import armar_inventario
+inv = armar_inventario()
+print(len(inv), "componentes cargados")`],
+    ["h", "Paquetes: carpetas de módulos"],
+    ["p", "Un <b>paquete</b> es una carpeta con módulos y un archivo <code>__init__.py</code>. Se importa con punto: <code>from laboratorio.componentes import Sensor</code>."],
+    ["tree", "mi_proyecto/\n├── main.py               ← programa principal (menú)\n└── laboratorio/          ← paquete\n    ├── __init__.py\n    ├── componentes.py    ← clases y herencia\n    └── inventario.py     ← funciones y listas"],
+    ["tip", "💡 Formas de importar: <code>import modulo</code> (usás <code>modulo.cosa</code>), <code>from modulo import cosa</code> (usás <code>cosa</code> directo) y <code>import modulo as m</code> (un apodo corto)."],
+    ["ojo", "⚠️ Evitá <code>from modulo import *</code> en proyectos grandes: trae todo y no queda claro de dónde sale cada nombre."]
+  ],
+  practica: [
+    { tipo: "mc", pregunta: "En <code>utiles.py</code> está la función <code>saludar()</code>. ¿Cómo la usás desde <code>main.py</code>?", codigo: "",
+      opciones: ["from utiles import saludar", "import saludar from utiles", "include utiles.py", "utiles.py.saludar()"], correcta: 0,
+      explicacion: "La forma es <code>from módulo import nombre</code>, y el módulo se escribe sin el .py." },
+    { tipo: "mc", pregunta: "¿Para qué sirve el archivo <code>__init__.py</code> dentro de una carpeta?", codigo: "",
+      opciones: ["Para que la carpeta se ejecute sola", "Para indicar que la carpeta es un paquete", "Para guardar las contraseñas", "Es el constructor de las clases"], correcta: 1,
+      explicacion: "Le avisa a Python que esa carpeta es un paquete y que se puede importar desde ella. Puede estar vacío." },
+    { tipo: "blank", pregunta: "Completá para calcular la raíz cuadrada de 25:", codigo: py`[[0]] math
+print(math.[[1]](25))`,
+      respuestas: [["import"], ["sqrt"]], explicacion: "<code>import math</code> trae la librería y <code>math.sqrt</code> calcula la raíz cuadrada: 5.0." }
+  ],
+  desafio: {
+    consigna: "En la caja de herramientas hay un módulo llamado <code>laboratorio.py</code> (ya está cargado). Tiene la función <code>armar_inventario()</code>, que devuelve una lista de componentes, y <code>buscar(inventario, codigo)</code>. Escribí un programa que:<br>1. Importe <b>esas dos funciones</b> con <code>from ... import ...</code><br>2. Arme el inventario e imprima <code>Componentes: &lt;cantidad&gt;</code><br>3. Busque el código <code>\"P01\"</code> e imprima el <b>nombre</b> de ese componente.",
+    modulo: MODULO_LABORATORIO,
+    inicial: "# 1) Importá desde el módulo laboratorio\n\n# 2) Armá el inventario y mostrá cuántos hay\n\n# 3) Buscá P01 y mostrá su nombre\n",
+    tests: [
+      { desc: "Imprime 'Componentes: 5'", check: py`assert "Componentes: 5" in _salida, "Esperaba ver 'Componentes: 5' (¿usaste len()?)"` },
+      { desc: "Imprime el nombre del componente P01", check: py`assert "Arduino UNO" in _salida, "Esperaba ver el nombre del P01 en la salida"` }
+    ],
+    requiere: [["from\\s+laboratorio\\s+import", "Usá from laboratorio import ..."], ["buscar\\s*\\(", "Usá la función buscar()"], ["armar_inventario\\s*\\(", "Usá armar_inventario()"]],
+    pistas: ["from laboratorio import armar_inventario, buscar", "inventario = armar_inventario() y después print(\"Componentes:\", len(inventario))", "placa = buscar(inventario, \"P01\") → print(placa.nombre)"],
+    solucion: py`from laboratorio import armar_inventario, buscar
+
+inventario = armar_inventario()
+print("Componentes:", len(inventario))
+
+placa = buscar(inventario, "P01")
+print(placa.nombre)`,
+    verModulo: true
+  }
+}
+];
+
+const CODIGO_FINAL = SALAS.map(s => s.digito).join("");
+
+/* Temas para la misión final (producción de los equipos) */
+const TEMAS = [
+  { ic: "🤖", t: "Pañol del laboratorio", d: "Préstamo de sensores, motores y placas (el ejemplo del docente)." },
+  { ic: "📚", t: "Biblioteca escolar", d: "Libros, revistas y manuales; préstamos y devoluciones." },
+  { ic: "🥪", t: "Buffet de la escuela", d: "Comidas y bebidas, stock y ventas del recreo." },
+  { ic: "⚽", t: "Torneo del recreo", d: "Equipos, jugadores, arqueros y tabla de posiciones." },
+  { ic: "🐾", t: "Refugio de mascotas", d: "Perros y gatos en adopción, vacunas y adoptantes." },
+  { ic: "🏔️", t: "Turismo en Ushuaia", d: "Excursiones de nieve, navegación y trekking con cupos." }
+];
+
+const CHECKLIST = [
+  "Hay una clase padre con constructor, atributos y al menos dos métodos",
+  "Hay al menos dos clases hijas que heredan de la clase padre",
+  "Al menos una clase hija sobreescribe un método del padre",
+  "El proyecto tiene al menos dos módulos (main.py + otro) y usa import",
+  "Los objetos se guardan en una lista (colección) y se recorren con un bucle",
+  "Se usan condicionales para validar o decidir",
+  "Hay funciones propias con parámetros y return",
+  "El programa tiene un menú que se repite hasta que el usuario sale",
+  "El código tiene comentarios que explican cada parte",
+  "Probamos el programa con datos correctos e incorrectos"
+];
+
+/* Plantillas descargables para la misión final */
+const PLANTILLAS = {
+  "modelos.py": py`# ==========================================
+#  modelos.py  →  CLASES y HERENCIA
+#  Equipo: ____________________
+# ==========================================
+
+class Elemento:                       # cambiá el nombre por tu clase padre
+    def __init__(self, codigo, nombre, cantidad):
+        self.codigo = codigo
+        self.nombre = nombre
+        self.cantidad = cantidad
+
+    def ficha(self):
+        return f"[{self.codigo}] {self.nombre} ({self.cantidad})"
+
+
+class TipoA(Elemento):                # primera clase hija
+    def __init__(self, codigo, nombre, cantidad, dato_extra):
+        super().__init__(codigo, nombre, cantidad)
+        self.dato_extra = dato_extra
+
+    def ficha(self):                  # sobreescritura
+        return super().ficha() + f" · {self.dato_extra}"
+
+
+class TipoB(Elemento):                # segunda clase hija
+    pass                              # completar
+`,
+  "funciones.py": py`# ==========================================
+#  funciones.py  →  COLECCIONES, BUCLES y FUNCIONES
+# ==========================================
+from modelos import TipoA, TipoB
+
+
+def cargar_datos():
+    """Devuelve la lista de objetos iniciales."""
+    return [
+        TipoA("A1", "Ejemplo", 3, "dato"),
+        # agregar más objetos
+    ]
+
+
+def buscar(lista, codigo):
+    for elemento in lista:
+        if elemento.codigo == codigo:
+            return elemento
+    return None
+
+
+def listar(lista):
+    for elemento in lista:
+        print(elemento.ficha())
+`,
+  "main.py": py`# ==========================================
+#  main.py  →  PROGRAMA PRINCIPAL (menú)
+# ==========================================
+from funciones import cargar_datos, buscar, listar
+
+
+def main():
+    datos = cargar_datos()
+    opcion = ""
+    while opcion != "0":
+        print("\n1) Ver todo   2) Buscar   0) Salir")
+        opcion = input("Opción: ")
+        if opcion == "1":
+            listar(datos)
+        elif opcion == "2":
+            codigo = input("Código: ")
+            encontrado = buscar(datos, codigo)
+            if encontrado:
+                print(encontrado.ficha())
+            else:
+                print("No existe ese código")
+    print("¡Hasta luego!")
+
+
+if __name__ == "__main__":
+    main()
+`
+};
+
+/* Secuencia para el panel docente */
+const SECUENCIA = [
+  ["Clase 1", "Despertar a PyBot", "Lectura previa de salas 1 a 3 en casa (aula invertida). En clase: repaso, práctica guiada y desafíos de las salas 1 a 5.", "Dígitos 1 a 5"],
+  ["Clase 2", "La fábrica de componentes", "Lectura previa de la sala 6. Explicación con PyBot, práctica guiada en parejas y desafío de clases y objetos.", "Dígito 6"],
+  ["Clase 3", "Herencia y caja de herramientas", "Salas 7 y 8. Se abre la puerta. Los equipos eligen el tema de su misión final y diseñan sus clases en papel.", "Dígitos 7 y 8 + puerta"],
+  ["Clase 4", "Misión final", "Producción autónoma con la plantilla de módulos, checklist y coevaluación. Muestra de programas.", "Producto final"]
+];
+</script>
+<script>
+/* =====================================================================
+   PyLab Escape · MOTOR DEL JUEGO
+   ===================================================================== */
+const KEY = "pylab-escape-v1";
+const PYODIDE_URL = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
+const AVATARES = ["🦊", "🐧", "🦉", "🐺", "🐙", "🦖", "🐝", "🦄", "🐼", "🚀"];
+
+/* ---------------- ESTADO ---------------- */
+function estadoInicial() {
+  const salas = {};
+  SALAS.forEach(s => salas[s.id] = { lectura: false, practica: {}, intentosPractica: {}, desafio: false, pistas: 0, code: null, intentos: 0 });
+  return { team: "", avatar: "🦊", xp: 0, elapsed: 0, salas, ejecutados: 0, puerta: false, puertaTiempo: 0,
+           tema: null, checklist: [], sonido: true, verSoluciones: false, todoDesbloqueado: false, pistasTotales: 0, aciertosPrimera: 0 };
+}
+let S = cargar();
+function cargar() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const d = JSON.parse(raw); const base = estadoInicial(); return Object.assign(base, d, { salas: Object.assign(base.salas, d.salas || {}) }); }
+  } catch (e) {}
+  return estadoInicial();
+}
+function guardar() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ---------------- UTILIDADES ---------------- */
+const $ = sel => document.querySelector(sel);
+const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const app = () => $("#app");
+const salaPorId = id => SALAS.find(s => s.id === Number(id));
+const salasHechas = () => SALAS.filter(s => S.salas[s.id].desafio).length;
+const disponible = id => S.todoDesbloqueado || id === 1 || (S.salas[id - 1] && S.salas[id - 1].desafio);
+function fmtTiempo(seg) { const h = Math.floor(seg / 3600), m = Math.floor(seg % 3600 / 60), s = seg % 60; const mm = String(m).padStart(2, "0"), ss = String(s).padStart(2, "0"); return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`; }
+
+function resaltar(code) {
+  const re = /(#[^\n]*)|([fF]?"(?:[^"\\\n]|\\.)*"|[fF]?'(?:[^'\\\n]|\\.)*')|\b(\d+(?:\.\d+)?)\b|\b(def|class|return|if|elif|else|for|while|in|import|from|as|True|False|None|and|or|not|pass|break|continue|is|lambda|with|try|except|global)\b|\b(print|len|input|int|float|str|range|super|type|isinstance|sum|round|enumerate|list|dict|self|__init__)\b/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const cls = m[1] ? "tk-c" : m[2] ? "tk-s" : m[3] ? "tk-n" : m[4] ? "tk-k" : "tk-f";
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    last = re.lastIndex;
+  }
+  return out + esc(code.slice(last));
+}
+
+function toast(msg, ms = 2600) { const t = $("#toast"); t.innerHTML = msg; t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), ms); }
+
+function sumarXP(n, motivo) {
+  S.xp = Math.max(0, S.xp + n); guardar(); pintarBarra();
+  if (motivo) toast(`${n >= 0 ? "+" : ""}${n} XP · ${motivo}`);
+}
+
+/* ---------------- SONIDO ---------------- */
+let actx = null;
+function beep(notas, dur = 0.12, tipo = "square") {
+  if (!S.sonido) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    notas.forEach((f, i) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = tipo; o.frequency.value = f; g.gain.value = 0.05;
+      o.connect(g); g.connect(actx.destination);
+      const t0 = actx.currentTime + i * dur; o.start(t0);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur * 0.95); o.stop(t0 + dur);
+    });
+  } catch (e) {}
+}
+const sOk = () => beep([660, 880]), sMal = () => beep([220, 160], 0.15, "sawtooth"), sWin = () => beep([523, 659, 784, 1047], 0.13, "triangle");
+function toggleSonido() { S.sonido = !S.sonido; guardar(); pintarBarra(); }
+
+/* ---------------- CONFETI ---------------- */
+function confeti() {
+  const c = $("#confeti"), ctx = c.getContext("2d"); c.width = innerWidth; c.height = innerHeight;
+  const col = ["#5BC0BE", "#F2C57C", "#E07A5F", "#7BD88F", "#F4F1DE", "#8FB8F0"];
+  const ps = Array.from({ length: 160 }, () => ({ x: innerWidth / 2, y: innerHeight / 3, vx: (Math.random() - .5) * 16, vy: Math.random() * -14 - 4, r: Math.random() * 6 + 4, c: col[Math.floor(Math.random() * col.length)], a: Math.random() * 6 }));
+  let f = 0;
+  (function loop() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    ps.forEach(p => { p.vy += .45; p.x += p.vx; p.y += p.vy; p.a += .2; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * .6); ctx.restore(); });
+    if (++f < 150) requestAnimationFrame(loop); else ctx.clearRect(0, 0, c.width, c.height);
+  })();
+}
+
+/* ---------------- PYTHON (Pyodide) ---------------- */
+let pyPromise = null, pyEstado = "off";
+function pintarChipPy() {
+  const c = $("#chip-py"); if (!c) return;
+  c.className = "chip " + (pyEstado === "ok" ? "py-ok" : pyEstado === "load" ? "py-load" : "py-off");
+  c.textContent = pyEstado === "ok" ? "🐍 Python listo" : pyEstado === "load" ? "🐍 Cargando…" : pyEstado === "err" ? "🐍 Sin conexión" : "🐍 Python";
+}
+function cargarPython() {
+  if (pyPromise) return pyPromise;
+  pyEstado = "load"; pintarChipPy();
+  pyPromise = new Promise((resolve, reject) => {
+    const sc = document.createElement("script");
+    sc.src = PYODIDE_URL + "pyodide.js";
+    sc.onload = async () => {
+      try {
+        const pyo = await loadPyodide({ indexURL: PYODIDE_URL });
+        pyo.setStdin({ stdin: () => prompt("🤖 PyBot te pide un dato (input):") });
+        pyo.FS.writeFile("/home/pyodide/laboratorio.py", MODULO_LABORATORIO);
+        pyo.runPython(py`
+import sys, importlib
+def _correr(codigo, ns):
+    cont = [0]
+    def tr(frame, event, arg):
+        if event == "line":
+            cont[0] += 1
+            if cont[0] > 300000:
+                raise RuntimeError("PyBot frenó el programa: parece un bucle infinito")
+        return tr
+    sys.modules.pop("laboratorio", None)
+    importlib.invalidate_caches()
+    ns["__name__"] = "__main__"
+    sys.settrace(tr)
+    try:
+        exec(compile(codigo, "<tu código>", "exec"), ns)
+    finally:
+        sys.settrace(None)
+`);
+        pyEstado = "ok"; pintarChipPy(); resolve(pyo);
+      } catch (e) { pyEstado = "err"; pintarChipPy(); pyPromise = null; reject(e); }
+    };
+    sc.onerror = () => { pyEstado = "err"; pintarChipPy(); pyPromise = null; reject(new Error("sin conexión")); };
+    document.head.appendChild(sc);
+  });
+  return pyPromise;
+}
+
+function traducirError(msg) {
+  const lineas = String(msg).trim().split("\n");
+  let ultima = lineas[lineas.length - 1] || "";
+  let linea = null;
+  lineas.forEach(l => { const m = l.match(/File "<tu código>", line (\d+)/); if (m) linea = Number(m[1]); });
+  const mt = ultima.match(/^(\w+(?:Error|Exception)?):?\s*(.*)$/);
+  const tipo = mt ? mt[1] : "Error", det = mt ? mt[2] : ultima;
+  const ayudas = {
+    NameError: () => { const n = det.match(/name '(.+?)'/); return `Usaste el nombre «${n ? n[1] : "?"}» pero no existe. ¿Está bien escrito? ¿Lo creaste antes de usarlo?`; },
+    SyntaxError: () => "Error de sintaxis: revisá paréntesis, comillas y los dos puntos (:) al final de if, for, def y class.",
+    IndentationError: () => "Problema de sangría: las líneas de un mismo bloque tienen que tener los mismos espacios al inicio (4 por nivel).",
+    TypeError: () => "Tipos que no combinan o cantidad de datos incorrecta al llamar una función. " + det,
+    IndexError: () => "Pediste una posición que no existe en la lista. Recordá que se cuenta desde 0.",
+    KeyError: () => `La clave ${det} no está en el diccionario.`,
+    AttributeError: () => "Ese objeto no tiene ese atributo o método. " + det,
+    ZeroDivisionError: () => "¡No se puede dividir por cero!",
+    ValueError: () => "Valor inválido: " + det,
+    ModuleNotFoundError: () => "No encuentro ese módulo. Revisá el nombre (sin .py).",
+    ImportError: () => "No pude importar eso del módulo. Revisá cómo se llama la función o clase.",
+    RuntimeError: () => det,
+    AssertionError: () => det
+  };
+  const ayuda = ayudas[tipo] ? ayudas[tipo]() : det;
+  return { tipo, linea, ayuda, crudo: ultima };
+}
+
+async function ejecutar(codigo, opts = {}) {
+  const pyo = await cargarPython();
+  let out = "", capturar = false;
+  pyo.setStdout({ batched: s => { if (capturar) out += s + "\n"; } });
+  pyo.setStderr({ batched: s => { if (capturar) out += s + "\n"; } });
+  const ns = pyo.globals.get("dict")();
+  const correr = pyo.globals.get("_correr");
+  try {
+    if (opts.preload) correr(opts.preload, ns);
+    if (opts.setup) correr(opts.setup, ns);
+    capturar = true;
+    correr(codigo, ns);
+    return { ok: true, out, ns, pyo };
+  } catch (e) {
+    return { ok: false, out, ns, pyo, err: traducirError(e.message) };
+  }
+}
+
+/* ---------------- BARRA SUPERIOR ---------------- */
+function pintarBarra() {
+  $("#chip-team").textContent = S.team ? `${S.avatar} ${S.team}` : "👥 Sin equipo";
+  $("#chip-xp").textContent = `⭐ ${S.xp} XP`;
+  $("#chip-time").textContent = `⏱ ${fmtTiempo(S.elapsed)}`;
+  $("#btn-sonido").textContent = S.sonido ? "🔊" : "🔇";
+  $("#locks").innerHTML = SALAS.map(s => `<span class="${S.salas[s.id].desafio ? "on" : ""}" title="Sala ${s.id}">${S.salas[s.id].desafio ? s.digito : "?"}</span>`).join("");
+  pintarChipPy();
+}
+setInterval(() => {
+  if (S.team && !S.puerta && document.visibilityState === "visible") {
+    S.elapsed++; $("#chip-time").textContent = `⏱ ${fmtTiempo(S.elapsed)}`;
+    if (S.elapsed % 10 === 0) guardar();
+  }
+}, 1000);
+
+/* ---------------- NAVEGACIÓN ---------------- */
+let vista = "intro", salaActual = null, pasoActual = "lectura";
+function irA(v, param) {
+  if (!S.team && v !== "intro" && v !== "lecturas") v = "intro";
+  vista = v;
+  if (v === "intro") vistaIntro();
+  else if (v === "mapa") vistaMapa();
+  else if (v === "sala") vistaSala(param);
+  else if (v === "puerta") vistaPuerta();
+  else if (v === "mision") vistaMision();
+  else if (v === "cert") vistaCert();
+  else if (v === "lecturas") vistaLecturas();
+  pintarBarra();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  try { history.replaceState(null, "", "#" + v + (param ? "-" + param : "")); } catch (e) {}
+}
+
+/* ---------------- VISTA: INTRO ---------------- */
+function vistaIntro() {
+  app().innerHTML = `
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Sala de escape · Laboratorio de Python</p>
+      <h1>¡Quedamos encerrados en el <span>laboratorio</span>!</h1>
+      <p class="lead">Un corte de luz trabó la puerta del Laboratorio de Robótica. La cerradura pide un código de 8 dígitos y el único que puede abrirla es <b>PyBot</b>, el robot del pañol… que perdió la memoria. Reparalo programando en Python y escapá.</p>
+    </div>
+    <div class="terminal"><div class="bar"><i style="background:#E07A5F"></i><i style="background:#F2C57C"></i><i style="background:#5BC0BE"></i></div><pre id="typed" class="typed"></pre></div>
+  </section>
+  <div class="rules">
+    <div class="rule"><span class="ic">📖</span><b>Leé</b><span class="muted">Cada sala tiene una lectura corta con ejemplos que podés ejecutar.</span></div>
+    <div class="rule"><span class="ic">🧪</span><b>Practicá</b><span class="muted">Ejercicios guiados: predecir, completar y ordenar código.</span></div>
+    <div class="rule"><span class="ic">🔐</span><b>Desafío</b><span class="muted">Programá en Python real. Si pasa las pruebas, ganás un dígito.</span></div>
+    <div class="rule"><span class="ic">⭐</span><b>XP y pistas</b><span class="muted">Sumás XP por aciertos. Cada pista cuesta 10 XP: usalas con estrategia.</span></div>
+  </div>
+  <div class="card">
+    ${S.team ? `<p style="margin-top:0">Hay una partida guardada de <b>${S.avatar} ${esc(S.team)}</b> con ${S.xp} XP y ${salasHechas()}/8 salas.</p>
+      <div class="toolbar"><button class="btn btn-main" onclick="irA('mapa')">▶ Continuar la misión</button><button class="btn btn-ghost" onclick="nuevoEquipo()">Empezar con otro equipo</button></div>` : `
+    <h3>Armá tu equipo</h3>
+    <div class="teamform"><input id="in-team" class="input" maxlength="30" placeholder="Nombre del equipo (ej: Los Pingüinos Binarios)"></div>
+    <p class="muted" style="margin:12px 0 0">Elegí su avatar:</p>
+    <div class="avatars" id="avatars">${AVATARES.map(a => `<button class="${a === S.avatar ? "sel" : ""}" onclick="elegirAvatar('${a}')">${a}</button>`).join("")}</div>
+    <button class="btn btn-main" onclick="empezar()">🚀 Comenzar la misión</button>`}
+    <p class="muted" style="margin-bottom:0;font-size:14px">¿Tarea para casa? Mirá las <a href="#" onclick="irA('lecturas');return false">lecturas previas de todas las salas</a>.</p>
+  </div>`;
+  escribirTerminal();
+}
+function escribirTerminal() {
+  const txt = "> python sistema_puerta.py\n[ERROR] Corte de energía detectado ⚡\n[ERROR] Cerradura bloqueada 🔒\n[PyBot] Perdí mis módulos de memoria...\n[PyBot] Necesito un equipo que me reprograme.\n\n> Código de desbloqueo: _ _ _ _ _ _ _ _";
+  const el = $("#typed"); if (!el) return; let i = 0;
+  (function tick() { if (!$("#typed")) return; el.textContent = txt.slice(0, i++); if (i <= txt.length) setTimeout(tick, txt[i - 1] === "\n" ? 260 : 24); })();
+}
+function elegirAvatar(a) { S.avatar = a; document.querySelectorAll("#avatars button").forEach(b => b.classList.toggle("sel", b.textContent === a)); }
+function empezar() {
+  const n = ($("#in-team").value || "").trim();
+  if (!n) { toast("Escribí el nombre del equipo 🙂"); $("#in-team").focus(); return; }
+  S.team = n; guardar(); sOk(); cargarPython().catch(() => {}); irA("mapa");
+}
+function nuevoEquipo() { if (confirm("¿Empezar de cero con otro equipo? Se borra el progreso guardado en este navegador.")) { S = estadoInicial(); guardar(); irA("intro"); } }
+
+/* ---------------- VISTA: MAPA ---------------- */
+function mensajePyBot() {
+  const n = salasHechas();
+  if (S.puerta) return "¡Lo lograron! La puerta está abierta. Ahora les toca la <b>misión final</b>: crear su propio sistema en Python.";
+  if (n === 0) return `¡Hola, ${esc(S.team)}! Empiecen por la <b>Sala 1</b>. Lean con atención: las lecturas tienen ejemplos que pueden ejecutar.`;
+  if (n === 8) return "¡Tengo los 8 dígitos! Vayan a la <b>puerta</b> e ingresen el código en orden, de la sala 1 a la 8.";
+  const frases = ["¡Excelente! Siento cómo vuelven mis circuitos.", "Vamos bien. Si se traban, una pista cuesta 10 XP… pero rendirse cuesta más.", "Cada sala usa lo que aprendieron en la anterior. ¡Sigan así!", "Mis sensores detectan programadores muy capaces en esta sala."];
+  return `${frases[n % frases.length]} Llevan <b>${n} de 8</b> dígitos.`;
+}
+function vistaMapa() {
+  const n = salasHechas();
+  app().innerHTML = `
+  <div class="mapa-head">
+    <div><p class="eyebrow">Mapa del laboratorio</p><h2 style="font-size:36px;margin:0">${S.avatar} ${esc(S.team)}</h2></div>
+    <div style="min-width:260px;flex:1;max-width:420px"><div class="muted" style="font-size:14px;margin-bottom:6px">Progreso: ${n}/8 salas</div><div class="progress"><div style="width:${n / 8 * 100}%"></div></div></div>
+  </div>
+  <div class="pybot"><div class="face">🤖</div><p><b>PyBot:</b> ${mensajePyBot()}</p></div>
+  <div class="salas">
+    ${SALAS.map(s => {
+      const st = S.salas[s.id], ok = disponible(s.id), hecha = st.desafio;
+      const actual = ok && !hecha && (s.id === 1 || S.salas[s.id - 1].desafio);
+      const pasos = (st.lectura ? 1 : 0) + (practicaCompleta(s) ? 1 : 0) + (hecha ? 1 : 0);
+      return `<button class="sala ${ok ? "" : "locked"} ${hecha ? "done" : ""} ${actual ? "current" : ""}" ${ok ? `onclick="irA('sala',${s.id})"` : "disabled"}>
+        <span class="num">SALA ${s.id}</span><span class="ic">${s.icono}</span><h3>${s.titulo}</h3><span class="concepto">${s.concepto}</span>
+        <span class="estado"><span>${hecha ? "Superada" : ok ? `${pasos}/3 pasos` : "Bloqueada"}</span>${hecha ? `<span class="digit">${s.digito}</span>` : ""}</span>
+      </button>`; }).join("")}
+  </div>
+  <div class="door-cta">
+    <div><h3 style="margin:0">${S.puerta ? "🚪 Puerta abierta" : "🔒 La puerta del laboratorio"}</h3><p class="muted" style="margin:4px 0 0">${S.puerta ? "Ya escaparon. Pueden ver su certificado y encarar la misión final." : "Cuando tengan los 8 dígitos, ingresen el código para escapar."}</p></div>
+    <div class="toolbar" style="margin:0">
+      ${S.puerta ? `<button class="btn btn-amber" onclick="irA('cert')">🏆 Certificado</button><button class="btn btn-main" onclick="irA('mision')">🏁 Misión final</button>` : `<button class="btn btn-amber" ${n === 8 ? "" : "disabled"} onclick="irA('puerta')">🔑 Ir a la puerta</button>`}
+    </div>
+  </div>`;
+}
+function practicaCompleta(s) { return s.practica.every((_, i) => S.salas[s.id].practica[i]); }
+
+/* ---------------- VISTA: SALA ---------------- */
+function vistaSala(id) {
+  const s = salaPorId(id); if (!s || !disponible(s.id)) { irA("mapa"); return; }
+  if (salaActual !== s.id) { salaActual = s.id; const st = S.salas[s.id]; pasoActual = st.desafio ? "desafio" : !st.lectura ? "lectura" : !practicaCompleta(s) ? "practica" : "desafio"; }
+  cargarPython().catch(() => {});
+  const st = S.salas[s.id];
+  app().innerHTML = `
+  <div class="sala-head"><span class="big">${s.icono}</span><div><p class="eyebrow">Sala ${s.id} de 8 · ${s.concepto}</p><h2>${s.titulo}</h2></div>
+    <button class="btn btn-ghost" style="margin-left:auto" onclick="irA('mapa')">← Mapa</button></div>
+  <div class="pybot"><div class="face">🤖</div><p><b>PyBot:</b> ${s.historia}</p></div>
+  <div class="steps">
+    <button class="step ${pasoActual === "lectura" ? "active" : ""} ${st.lectura ? "ok" : ""}" onclick="cambiarPaso('lectura')">📖 1. Lectura</button>
+    <button class="step ${pasoActual === "practica" ? "active" : ""} ${practicaCompleta(s) ? "ok" : ""}" ${st.lectura || S.todoDesbloqueado ? "" : "disabled"} onclick="cambiarPaso('practica')">🧪 2. Práctica guiada</button>
+    <button class="step ${pasoActual === "desafio" ? "active" : ""} ${st.desafio ? "ok" : ""}" ${(st.lectura && practicaCompleta(s)) || S.todoDesbloqueado ? "" : "disabled"} onclick="cambiarPaso('desafio')">🔐 3. Desafío</button>
+  </div>
+  <div id="paso"></div>`;
+  if (pasoActual === "lectura") pasoLectura(s);
+  else if (pasoActual === "practica") pasoPractica(s);
+  else pasoDesafio(s);
+}
+function cambiarPaso(p) { pasoActual = p; vistaSala(salaActual); }
+
+function renderLectura(s, conBotones = true) {
+  return s.lectura.map(([t, c], i) => {
+    if (t === "h") return `<h3>${c}</h3>`;
+    if (t === "p") return `<p>${c}</p>`;
+    if (t === "tip") return `<div class="tip">${c}</div>`;
+    if (t === "ojo") return `<div class="ojo">${c}</div>`;
+    if (t === "tree") return `<div class="tree">${esc(c)}</div>`;
+    if (t === "code") return `<div class="codebox">${conBotones ? `<button class="run noprint" onclick="probarEjemplo(${s.id},${i},this)">▶ Probar</button>` : ""}<pre>${resaltar(c)}</pre><div class="out hidden"></div></div>`;
+    return "";
+  }).join("");
+}
+function pasoLectura(s) {
+  const st = S.salas[s.id];
+  $("#paso").innerHTML = `<div class="card lectura">${renderLectura(s)}
+    <div class="toolbar" style="margin-top:22px">${st.lectura ? `<button class="btn btn-main" onclick="cambiarPaso('practica')">Ir a la práctica →</button>` : `<button class="btn btn-main" onclick="marcarLeido(${s.id})">✔ ¡Listo, ya lo leí! (+10 XP)</button>`}</div></div>`;
+}
+async function probarEjemplo(id, idx, btn) {
+  const s = salaPorId(id), code = s.lectura[idx][1], out = btn.parentElement.querySelector(".out");
+  // los ejemplos anteriores de la misma lectura se cargan antes (en silencio)
+  const previos = s.lectura.slice(0, idx).filter(b => b[0] === "code").map(b => b[1]).join("\n\n");
+  out.classList.remove("hidden", "err"); out.textContent = "⏳ Ejecutando…";
+  try {
+    let r = await ejecutar(code, { preload: previos });
+    if (!r.ok && previos) r = await ejecutar(code);
+    if (r.ok) { out.textContent = r.out.trim() || "(el programa no mostró nada)"; }
+    else { out.classList.add("err"); out.textContent = (r.out ? r.out : "") + `✖ ${r.err.tipo}${r.err.linea ? " en la línea " + r.err.linea : ""}: ${r.err.ayuda}`; }
+    S.ejecutados++; guardar();
+  } catch (e) { out.classList.add("err"); out.textContent = "No pude cargar Python (¿sin internet?). Copiá el código en Thonny, IDLE o Replit para probarlo."; }
+}
+function marcarLeido(id) { S.salas[id].lectura = true; sumarXP(10, "Lectura completa"); sOk(); cambiarPaso("practica"); }
+
+/* --- práctica --- */
+function pasoPractica(s) {
+  const st = S.salas[s.id];
+  $("#paso").innerHTML = s.practica.map((e, i) => `<div class="ejercicio" id="ej-${i}"></div>`).join("") +
+    `<div class="toolbar"><button class="btn btn-main" id="btn-al-desafio" ${practicaCompleta(s) ? "" : "disabled"} onclick="cambiarPaso('desafio')">🔐 Ir al desafío →</button><span class="muted" style="align-self:center">${practicaCompleta(s) ? "" : "Resolvé los tres ejercicios para desbloquear el desafío."}</span></div>`;
+  s.practica.forEach((e, i) => pintarEjercicio(s, i));
+}
+function pintarEjercicio(s, i) {
+  const e = s.practica[i], st = S.salas[s.id], hecho = !!st.practica[i], box = $("#ej-" + i);
+  const etiquetas = { mc: "Predecí / elegí", blank: "Completá", parsons: "Ordená el código" };
+  let html = `<span class="tag">${i + 1} · ${etiquetas[e.tipo]}</span><div class="q">${e.pregunta}</div>`;
+  if (e.tipo === "mc") {
+    if (e.codigo) html += `<div class="codebox"><pre>${resaltar(e.codigo)}</pre></div>`;
+    html += `<div class="opciones">${e.opciones.map((o, k) => `<button class="opcion ${hecho && k === e.correcta ? "bien" : ""}" ${hecho ? "disabled" : ""} onclick="responderMC(${s.id},${i},${k},this)">${esc(o)}</button>`).join("")}</div>`;
+  } else if (e.tipo === "blank") {
+    const partes = e.codigo.split(/\[\[(\d+)\]\]/);
+    let code = "";
+    partes.forEach((p, k) => { code += k % 2 === 0 ? resaltar(p) : `<input class="blank ${hecho ? "bien" : ""}" data-i="${p}" ${hecho ? `value="${esc(e.respuestas[p][0])}" disabled` : ""} autocomplete="off" spellcheck="false">`; });
+    html += `<div class="codebox"><pre>${code}</pre></div>${hecho ? "" : `<button class="btn btn-main" onclick="responderBlank(${s.id},${i})">Comprobar</button>`}`;
+  } else if (e.tipo === "parsons") {
+    if (hecho) html += `<div class="codebox"><pre>${resaltar(e.lineas.join("\n"))}</pre></div>`;
+    else {
+      box._origen = box._origen || mezclar(e.lineas.map((_, k) => k)); box._destino = box._destino || [];
+      html += `<div class="parsons"><div class="pzone"><h4>Líneas disponibles · tocá para mover</h4>${box._origen.map(k => `<button class="pline" onclick="moverParsons(${s.id},${i},${k},'a')">${esc(e.lineas[k])}</button>`).join("")}</div>
+        <div class="pzone"><h4>Tu programa</h4>${box._destino.map(k => `<button class="pline" onclick="moverParsons(${s.id},${i},${k},'b')">${esc(e.lineas[k])}</button>`).join("")}</div></div>
+        <div class="toolbar"><button class="btn btn-main" ${box._origen.length ? "disabled" : ""} onclick="responderParsons(${s.id},${i})">Comprobar</button><button class="btn btn-ghost" onclick="reiniciarParsons(${s.id},${i})">↺ Reiniciar</button></div>`;
+    }
+  }
+  if (hecho) html += `<div class="feedback bien">✔ ${e.explicacion}</div>`;
+  box.innerHTML = html + `<div class="fb"></div>`;
+}
+function mezclar(a) { const r = a.slice(); do { for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } } while (r.every((v, i) => v === i) && r.length > 1); return r; }
+function moverParsons(id, i, k, desde) {
+  const box = $("#ej-" + i);
+  if (desde === "a") { box._origen = box._origen.filter(x => x !== k); box._destino.push(k); }
+  else { box._destino = box._destino.filter(x => x !== k); box._origen.push(k); }
+  pintarEjercicio(salaPorId(id), i);
+}
+function reiniciarParsons(id, i) { const box = $("#ej-" + i); box._origen = mezclar(salaPorId(id).practica[i].lineas.map((_, k) => k)); box._destino = []; pintarEjercicio(salaPorId(id), i); }
+function registrarIntento(id, i) { const st = S.salas[id]; st.intentosPractica[i] = (st.intentosPractica[i] || 0) + 1; return st.intentosPractica[i]; }
+function aprobarEjercicio(id, i, xpBase) {
+  const st = S.salas[id], intentos = st.intentosPractica[i] || 1;
+  st.practica[i] = true; if (intentos === 1) S.aciertosPrimera++;
+  sumarXP(intentos === 1 ? xpBase : Math.round(xpBase / 2), intentos === 1 ? "¡Al primer intento!" : "Ejercicio resuelto"); sOk();
+  pintarEjercicio(salaPorId(id), i);
+  const s = salaPorId(id);
+  if (practicaCompleta(s)) { const b = $("#btn-al-desafio"); if (b) b.disabled = false; vistaSala(id); toast("🔓 ¡Desafío desbloqueado!"); }
+}
+function falloEjercicio(i, msg) { sMal(); const fb = $("#ej-" + i + " .fb"); fb.innerHTML = `<div class="feedback mal">✖ ${msg}</div>`; }
+function responderMC(id, i, k, btn) {
+  const e = salaPorId(id).practica[i]; registrarIntento(id, i);
+  if (k === e.correcta) aprobarEjercicio(id, i, 20);
+  else { btn.classList.add("mal"); btn.disabled = true; falloEjercicio(i, "No es esa. Volvé a leer el código línea por línea, como si fueras la computadora."); }
+}
+function responderBlank(id, i) {
+  const e = salaPorId(id).practica[i]; registrarIntento(id, i); let ok = true;
+  document.querySelectorAll(`#ej-${i} .blank`).forEach(inp => {
+    const bien = e.respuestas[inp.dataset.i].includes(inp.value.trim());
+    inp.classList.toggle("bien", bien); inp.classList.toggle("mal", !bien); if (!bien) ok = false;
+  });
+  if (ok) aprobarEjercicio(id, i, 20); else falloEjercicio(i, "Hay espacios con error (en rojo). Ojo con mayúsculas y nombres exactos.");
+}
+function responderParsons(id, i) {
+  const box = $("#ej-" + i); registrarIntento(id, i);
+  if (box._destino.every((v, k) => v === k)) aprobarEjercicio(id, i, 25);
+  else falloEjercicio(i, "El orden no es correcto todavía. Pensá: ¿qué tiene que existir antes de usarse? ¿qué va adentro de cada bloque?");
+}
+
+/* --- desafío --- */
+function pasoDesafio(s) {
+  const st = S.salas[s.id], d = s.desafio;
+  if (st.code === null) st.code = d.inicial;
+  $("#paso").innerHTML = `
+  <div class="mision"><h3>🔐 Misión de la sala ${s.id}</h3><div>${d.consigna}</div>
+    ${d.verModulo ? `<details style="margin-top:10px"><summary style="cursor:pointer;color:var(--teal);font-weight:700">Ver el módulo laboratorio.py</summary><div class="codebox"><pre>${resaltar(d.modulo)}</pre></div></details>` : ""}
+    ${d.preload ? `<details style="margin-top:10px"><summary style="cursor:pointer;color:var(--teal);font-weight:700">Ver la clase Componente que ya está cargada</summary><div class="codebox"><pre>${resaltar(d.preload)}</pre></div></details>` : ""}
+  </div>
+  ${st.desafio ? `<div class="feedback bien" style="margin-bottom:14px">✔ Sala superada. El dígito de esta sala es <b style="font-size:22px;color:var(--teal)">${s.digito}</b>. Podés seguir experimentando con tu código.</div>` : ""}
+  <div class="editor-wrap"><div class="gutter" id="gutter">1</div><textarea class="editor" id="editor" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div>
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="correrDesafio(${s.id})">▶ Ejecutar</button>
+    <button class="btn btn-main" onclick="verificar(${s.id})">✅ Verificar misión</button>
+    <button class="btn btn-amber" onclick="pedirPista(${s.id})" ${st.pistas >= d.pistas.length ? "disabled" : ""}>💡 Pista ${st.pistas}/${d.pistas.length} (−10 XP)</button>
+    <button class="btn btn-ghost" onclick="reiniciarCodigo(${s.id})">↺ Reiniciar</button>
+    ${S.verSoluciones ? `<button class="btn btn-ghost" onclick="verSolucion(${s.id})">👩‍🏫 Solución</button>` : ""}
+  </div>
+  <div class="pistas" id="pistas">${d.pistas.slice(0, st.pistas).map((p, k) => `<div class="pista">💡 <b>Pista ${k + 1}:</b> <span style="white-space:pre-wrap;font-family:${k === 2 ? "var(--f-code)" : "inherit"}">${esc(p)}</span></div>`).join("")}</div>
+  <h4 style="margin-top:18px">Consola</h4><div class="consola" id="consola"><span class="info">Ejecutá tu programa para ver qué muestra. Cuando estés listo, verificá la misión.</span></div>
+  <ul class="tests" id="tests"></ul>`;
+  const ed = $("#editor"); ed.value = st.code; actualizarGutter();
+  ed.addEventListener("input", () => { st.code = ed.value; actualizarGutter(); clearTimeout(ed._t); ed._t = setTimeout(guardar, 400); });
+  ed.addEventListener("scroll", () => $("#gutter").scrollTop = ed.scrollTop);
+  ed.addEventListener("keydown", teclaEditor);
+}
+function actualizarGutter() { const ed = $("#editor"), n = ed.value.split("\n").length; $("#gutter").textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n"); $("#gutter").style.minHeight = ed.offsetHeight + "px"; }
+function teclaEditor(ev) {
+  const ed = ev.target, ini = ed.selectionStart, fin = ed.selectionEnd, v = ed.value;
+  if (ev.key === "Tab") {
+    ev.preventDefault();
+    if (ev.shiftKey) { const li = v.lastIndexOf("\n", ini - 1) + 1; if (v.slice(li, li + 4) === "    ") { ed.value = v.slice(0, li) + v.slice(li + 4); ed.selectionStart = ed.selectionEnd = Math.max(li, ini - 4); } }
+    else { ed.value = v.slice(0, ini) + "    " + v.slice(fin); ed.selectionStart = ed.selectionEnd = ini + 4; }
+    ed.dispatchEvent(new Event("input"));
+  } else if (ev.key === "Enter") {
+    ev.preventDefault();
+    const li = v.lastIndexOf("\n", ini - 1) + 1, linea = v.slice(li, ini);
+    let sang = (linea.match(/^ */) || [""])[0];
+    if (/:\s*$/.test(linea)) sang += "    ";
+    ed.value = v.slice(0, ini) + "\n" + sang + v.slice(fin); ed.selectionStart = ed.selectionEnd = ini + 1 + sang.length;
+    ed.dispatchEvent(new Event("input"));
+  }
+}
+function consola(html) { $("#consola").innerHTML = html; }
+async function correrDesafio(id) {
+  const s = salaPorId(id), d = s.desafio, code = $("#editor").value;
+  consola('<span class="info">⏳ Ejecutando…</span>');
+  try {
+    const r = await ejecutar(code, { preload: d.preload, setup: d.ejemploSetup });
+    S.ejecutados++; guardar();
+    let html = d.ejemploSetup ? `<span class="info"># Probando con ${esc(d.ejemploSetup)}</span>\n` : "";
+    html += esc(r.out) || (r.ok ? '<span class="info">(el programa no mostró nada)</span>' : "");
+    if (!r.ok) html += `\n<span class="err">✖ ${esc(r.err.tipo)}${r.err.linea ? " en la línea " + r.err.linea : ""}\n${esc(r.err.ayuda)}</span>`;
+    consola(html);
+  } catch (e) { consola('<span class="err">No pude cargar Python: revisá la conexión a internet. Igual podés verificar la misión en modo simplificado.</span>'); }
+}
+function chequeosEstaticos(d, code) {
+  for (const [re, msg] of d.requiere || []) if (!new RegExp(re, "m").test(code)) return msg;
+  for (const [re, msg] of d.prohibe || []) if (new RegExp(re, "m").test(code)) return msg;
+  return null;
+}
+async function verificar(id) {
+  const s = salaPorId(id), d = s.desafio, st = S.salas[id], code = $("#editor").value, lista = $("#tests");
+  st.intentos++; guardar();
+  const msgEstatico = chequeosEstaticos(d, code);
+  if (msgEstatico) { sMal(); lista.innerHTML = `<li class="fail">✖ ${esc(msgEstatico)}</li>`; return; }
+  lista.innerHTML = '<li>⏳ PyBot está probando tu programa…</li>';
+  let pyo = null;
+  try { pyo = await cargarPython(); } catch (e) {}
+  if (!pyo) {
+    lista.innerHTML = '<li class="pass">⚠️ Modo sin conexión: se revisó la estructura del código, pero no se pudo ejecutar. Mostrale el programa a tu docente.</li>';
+    superarSala(s, true); return;
+  }
+  const resultados = [];
+  for (const t of d.tests) {
+    const r = await ejecutar(code, { preload: d.preload, setup: t.setup });
+    if (!r.ok) { resultados.push({ t, ok: false, msg: `${r.err.tipo}${r.err.linea ? " (línea " + r.err.linea + ")" : ""}: ${r.err.ayuda}` }); continue; }
+    try {
+      r.ns.set("_salida", r.out);
+      pyo.globals.get("_correr")(t.check, r.ns);
+      resultados.push({ t, ok: true });
+    } catch (e) { const er = traducirError(e.message); resultados.push({ t, ok: false, msg: er.ayuda || er.crudo }); }
+  }
+  lista.innerHTML = resultados.map(x => `<li class="${x.ok ? "pass" : "fail"}">${x.ok ? "✔" : "✖"} ${esc(x.t.desc)}${x.ok ? "" : `<br><span class="muted">${esc(x.msg)}</span>`}</li>`).join("");
+  const pasaron = resultados.filter(x => x.ok).length;
+  if (pasaron === resultados.length) superarSala(s, false);
+  else { sMal(); toast(`Pasaron ${pasaron} de ${resultados.length} pruebas. ¡Casi!`); }
+}
+function superarSala(s, offline) {
+  const st = S.salas[s.id];
+  if (st.desafio) { toast("✔ ¡Sigue funcionando!"); return; }
+  st.desafio = true;
+  const bonus = st.intentos === 1 ? 20 : 0;
+  sumarXP((offline ? 30 : 60) + bonus, bonus ? "¡Misión al primer intento! +20 bonus" : "Misión cumplida");
+  sWin(); confeti(); guardar(); pintarBarra();
+  setTimeout(() => modal(`<div style="text-align:center"><div style="font-size:64px">${s.icono}</div><p class="eyebrow">Sala ${s.id} superada</p>
+    <h2>¡Dígito obtenido!</h2><div style="font-family:var(--f-code);font-size:84px;font-weight:800;color:var(--teal);line-height:1">${s.digito}</div>
+    <p class="muted">Anotalo: el código de la puerta se arma con los dígitos de las salas 1 a 8, en orden.</p>
+    <div class="toolbar" style="justify-content:center">${s.id < 8 ? `<button class="btn btn-main" onclick="cerrarModal();irA('sala',${s.id + 1})">Sala ${s.id + 1} →</button>` : `<button class="btn btn-amber" onclick="cerrarModal();irA('puerta')">🔑 ¡A la puerta!</button>`}<button class="btn btn-ghost" onclick="cerrarModal();irA('mapa')">🗺 Mapa</button></div></div>`), 500);
+}
+function pedirPista(id) {
+  const s = salaPorId(id), st = S.salas[id];
+  if (st.pistas >= s.desafio.pistas.length) return;
+  st.pistas++; S.pistasTotales++; sumarXP(-10, "Pista usada"); vistaSala(id);
+  setTimeout(() => { const p = document.querySelectorAll(".pista"); if (p.length) p[p.length - 1].scrollIntoView({ behavior: "smooth", block: "center" }); }, 50);
+}
+function reiniciarCodigo(id) { if (confirm("¿Volver al código inicial? Se borra lo que escribiste en esta sala.")) { S.salas[id].code = salaPorId(id).desafio.inicial; guardar(); vistaSala(id); } }
+function verSolucion(id) { modal(`<h3>👩‍🏫 Solución de referencia · Sala ${id}</h3><div class="codebox"><pre>${resaltar(salaPorId(id).desafio.solucion)}</pre></div><p class="muted">Hay muchas soluciones válidas: lo importante es que pase las pruebas y se entienda.</p><button class="btn btn-main" onclick="cerrarModal()">Cerrar</button>`); }
+
+/* ---------------- VISTA: PUERTA ---------------- */
+function vistaPuerta() {
+  if (salasHechas() < 8 && !S.puerta) { toast("Todavía faltan dígitos 🔒"); irA("mapa"); return; }
+  app().innerHTML = `<div class="puerta card">
+    <p class="eyebrow">Salida del laboratorio</p><div class="door" id="door">${S.puerta ? "🚪✨" : "🚪"}</div>
+    <h2>Ingresá el código de 8 dígitos</h2><p class="muted">Los dígitos de las salas 1 a 8, en orden.</p>
+    <div class="keypad-digits">${SALAS.map((_, i) => `<input maxlength="1" inputmode="numeric" data-i="${i}" ${S.puerta ? `value="${CODIGO_FINAL[i]}" disabled` : ""}>`).join("")}</div>
+    <div id="puerta-msg"></div>
+    ${S.puerta ? `<div class="toolbar" style="justify-content:center"><button class="btn btn-amber" onclick="irA('cert')">🏆 Ver certificado</button><button class="btn btn-main" onclick="irA('mision')">🏁 Misión final</button></div>` : `<button class="btn btn-main" onclick="probarCodigo()">🔓 Abrir</button>`}
+  </div>`;
+  const ins = document.querySelectorAll(".keypad-digits input");
+  ins.forEach((inp, i) => {
+    inp.addEventListener("input", () => { inp.value = inp.value.replace(/\D/g, ""); if (inp.value && ins[i + 1]) ins[i + 1].focus(); });
+    inp.addEventListener("keydown", e => { if (e.key === "Backspace" && !inp.value && ins[i - 1]) ins[i - 1].focus(); if (e.key === "Enter") probarCodigo(); });
+  });
+  if (!S.puerta) ins[0].focus();
+}
+function probarCodigo() {
+  const cod = Array.from(document.querySelectorAll(".keypad-digits input")).map(i => i.value).join("");
+  if (cod.length < 8) { toast("Faltan dígitos"); return; }
+  if (cod === CODIGO_FINAL) {
+    S.puerta = true; S.puertaTiempo = S.elapsed; sumarXP(100, "¡Escaparon del laboratorio!"); guardar();
+    $("#door").classList.add("open"); $("#door").textContent = "🚪✨"; sWin(); confeti(); setTimeout(confeti, 700);
+    $("#puerta-msg").innerHTML = `<div class="feedback bien">🤖 <b>PyBot:</b> ¡Sistemas restaurados! Gracias, ${esc(S.team)}. Ahora sé guardar datos, decidir, repetir, organizarme en funciones, clases, herencia y módulos.</div>`;
+    setTimeout(() => irA("puerta"), 2200);
+  } else {
+    sMal(); const k = document.querySelector(".keypad-digits"); k.style.animation = "shake .3s"; setTimeout(() => k.style.animation = "", 300);
+    $("#puerta-msg").innerHTML = `<div class="feedback mal">✖ Código incorrecto. Revisá el orden: sala 1, sala 2… hasta la sala 8.</div>`;
+  }
+}
+
+/* ---------------- VISTA: MISIÓN FINAL ---------------- */
+function vistaMision() {
+  app().innerHTML = `
+  <div class="sala-head"><span class="big">🏁</span><div><p class="eyebrow">Producción final · Clase 4</p><h2>Misión final: su propio sistema en Python</h2></div></div>
+  <div class="pybot"><div class="face">🤖</div><p><b>PyBot:</b> ${S.puerta ? "Me reprogramaron muy bien. Ahora les toca crear un programa desde cero, en equipo, para resolver un problema de la escuela o de la vida cotidiana." : "Pueden mirar la misión final ahora, pero primero conviene escapar del laboratorio: ahí está todo lo que van a necesitar."}</p></div>
+  <div class="card" style="margin-bottom:20px"><h3>1 · Elijan un tema</h3><p class="muted">O propongan uno propio y consúltenlo con su docente.</p>
+    <div class="temas">${TEMAS.map((t, i) => `<button class="tema ${S.tema === i ? "sel" : ""}" onclick="elegirTema(${i})"><span class="ic">${t.ic}</span><h4 style="margin:6px 0 4px">${t.t}</h4><span class="muted" style="font-size:15px">${t.d}</span></button>`).join("")}</div></div>
+  <div class="grid2" style="margin-bottom:20px">
+    <div class="card"><h3>2 · Estructura del proyecto</h3>
+      <div class="tree">mi_sistema/\n├── main.py        ← menú y programa principal\n├── modelos.py     ← clase padre + clases hijas\n└── funciones.py   ← lista de objetos, buscar, listar…</div>
+      <p class="muted" style="font-size:15px">Descarguen la plantilla y reemplacen los nombres genéricos por los de su tema.</p>
+      <div class="toolbar">${Object.keys(PLANTILLAS).map(f => `<button class="btn btn-ghost" onclick="descargar('${f}')">⬇ ${f}</button>`).join("")}</div>
+    </div>
+    <div class="card"><h3>3 · Diseño en papel primero</h3>
+      <p>Antes de programar, dibujen el <b>diagrama de clases</b>: ¿cuál es la clase padre? ¿qué atributos comparten todos? ¿qué tiene de especial cada hija? ¿qué método se comporta distinto en cada una?</p>
+      <div class="tip" style="background:rgba(242,197,124,.1);border-left:4px solid var(--amber);border-radius:8px;padding:10px 14px">💡 Ejemplo del docente: <b>Componente</b> → Sensor, Actuador y Placa. La placa sobreescribe <code>prestar()</code> porque solo se presta de a una.</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:20px"><h3>4 · Checklist del equipo <span class="muted" style="font-size:16px">(${S.checklist.filter(Boolean).length}/${CHECKLIST.length})</span></h3>
+    ${CHECKLIST.map((c, i) => `<label class="check"><input type="checkbox" ${S.checklist[i] ? "checked" : ""} onchange="marcarCheck(${i},this.checked)"><span>${c}</span></label>`).join("")}
+  </div>
+  <div class="card"><h3>5 · Cómo los vamos a evaluar</h3>
+    <div class="grid2" style="gap:12px">
+      <div class="tip" style="border-left:4px solid var(--teal);background:var(--bg2);border-radius:8px;padding:10px 14px"><b>Funciona</b><br><span class="muted">Corre sin errores, el menú responde y valida datos.</span></div>
+      <div class="tip" style="border-left:4px solid var(--amber);background:var(--bg2);border-radius:8px;padding:10px 14px"><b>POO bien aplicada</b><br><span class="muted">Clases con sentido, herencia real y una sobreescritura justificada.</span></div>
+      <div class="tip" style="border-left:4px solid var(--coral);background:var(--bg2);border-radius:8px;padding:10px 14px"><b>Organización</b><br><span class="muted">Módulos separados por responsabilidad, nombres claros, comentarios.</span></div>
+      <div class="tip" style="border-left:4px solid var(--green);background:var(--bg2);border-radius:8px;padding:10px 14px"><b>Comunicación</b><br><span class="muted">Pueden explicar su código y muestran el programa a la clase.</span></div>
+    </div>
+  </div>`;
+}
+function elegirTema(i) { S.tema = i; guardar(); sOk(); vistaMision(); }
+function marcarCheck(i, v) {
+  S.checklist[i] = v; guardar();
+  if (S.checklist.filter(Boolean).length === CHECKLIST.length) { sWin(); confeti(); toast("🛠️ ¡Insignia Constructor desbloqueada!"); }
+  vistaMision();
+}
+function descargar(nombre) {
+  const blob = new Blob([PLANTILLAS[nombre]], { type: "text/x-python" }), a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------------- INSIGNIAS Y CERTIFICADO ---------------- */
+function insignias() {
+  return [
+    { ic: "🏆", t: "Escapista", ok: S.puerta },
+    { ic: "🎯", t: "Puntería", ok: S.aciertosPrimera >= 15, d: "15 ejercicios al primer intento" },
+    { ic: "🧠", t: "Sin pistas", ok: S.puerta && S.pistasTotales === 0 },
+    { ic: "🧪", t: "Experimentador", ok: S.ejecutados >= 15, d: "15 ejecuciones" },
+    { ic: "⚡", t: "Velocista", ok: S.puerta && S.puertaTiempo > 0 && S.puertaTiempo < 3 * 3600, d: "Escapar en menos de 3 h" },
+    { ic: "🛠️", t: "Constructor", ok: S.checklist.filter(Boolean).length === CHECKLIST.length }
+  ];
+}
+function vistaCert() {
+  if (!S.puerta) { toast("El certificado aparece al abrir la puerta 🔒"); irA("mapa"); return; }
+  const f = new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
+  app().innerHTML = `<div class="cert">
+    <div style="font-size:54px">${S.avatar}🤖</div><p class="eyebrow" style="color:#23706E">Certificado de escape</p>
+    <h2>PyLab Escape · Laboratorio de Python</h2><p>Se certifica que el equipo</p><div class="team">${esc(S.team)}</div>
+    <p>reprogramó a PyBot y escapó del Laboratorio de Robótica dominando variables, condicionales, colecciones, bucles, funciones, clases, herencia y módulos.</p>
+    <div class="stats"><div><b>${S.xp}</b>XP</div><div><b>${fmtTiempo(S.puertaTiempo || S.elapsed)}</b>tiempo de misión</div><div><b>${S.pistasTotales}</b>pistas usadas</div></div>
+    <div class="badges">${insignias().map(b => `<span class="badge ${b.ok ? "" : "off"}" title="${b.d || ""}">${b.ic} ${b.t}</span>`).join("")}</div>
+    <p style="margin-top:26px;color:#3A506B">${f} · Ushuaia, Tierra del Fuego</p>
+  </div>
+  <div class="toolbar noprint" style="justify-content:center"><button class="btn btn-main" onclick="print()">🖨 Imprimir / Guardar PDF</button><button class="btn btn-ghost" onclick="irA('mision')">🏁 Misión final</button></div>`;
+}
+
+/* ---------------- VISTA: LECTURAS PREVIAS ---------------- */
+function vistaLecturas() {
+  app().innerHTML = `<div class="toolbar noprint"><button class="btn btn-ghost" onclick="irA(S.team ? 'mapa' : 'intro')">← Volver</button><button class="btn btn-main" onclick="print()">🖨 Imprimir lecturas</button></div>
+    <h2 style="font-size:38px">📖 Lecturas previas</h2><p class="muted">Material para leer antes de cada clase. En el juego, cada ejemplo se puede ejecutar.</p>
+    ${SALAS.map(s => `<div class="card lectura" style="margin-bottom:20px"><p class="eyebrow">Sala ${s.id} · ${s.concepto}</p><h2>${s.icono} ${s.titulo}</h2>${renderLectura(s, false)}</div>`).join("")}`;
+}
+
+/* ---------------- MODAL Y PANEL DOCENTE ---------------- */
+function modal(html) { $("#modal-root").innerHTML = `<div class="modal-bg" onclick="if(event.target===this)cerrarModal()"><div class="modal">${html}</div></div>`; }
+function cerrarModal() { $("#modal-root").innerHTML = ""; }
+function abrirDocente() {
+  const resumen = SALAS.map(s => { const st = S.salas[s.id]; return `<tr><td>${s.icono} ${s.id}. ${s.titulo}</td><td>${st.lectura ? "✔" : "—"}</td><td>${s.practica.filter((_, i) => st.practica[i]).length}/3</td><td>${st.desafio ? "✔ (" + st.intentos + " int.)" : st.intentos ? st.intentos + " int." : "—"}</td><td>${st.pistas}</td></tr>`; }).join("");
+  modal(`<h2>👩‍🏫 Panel docente</h2>
+    <p class="muted">La experiencia acompaña una secuencia de 4 clases. Las lecturas pueden asignarse como tarea (aula invertida).</p>
+    <table><tr><th>Clase</th><th>Foco</th><th>Qué se hace</th><th>Logro</th></tr>${SECUENCIA.map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</table>
+    <h3>Progreso de ${esc(S.team || "—")}</h3>
+    <table><tr><th>Sala</th><th>Lectura</th><th>Práctica</th><th>Desafío</th><th>Pistas</th></tr>${resumen}</table>
+    <p>XP: <b>${S.xp}</b> · Tiempo: <b>${fmtTiempo(S.elapsed)}</b> · Ejecuciones: <b>${S.ejecutados}</b> · Código de la puerta: <code>${CODIGO_FINAL}</code></p>
+    <div class="toolbar">
+      <button class="btn btn-main" onclick="copiarProgreso()">📋 Copiar informe</button>
+      <button class="btn btn-ghost" onclick="cerrarModal();irA('lecturas')">📖 Lecturas previas</button>
+      <button class="btn btn-ghost" onclick="toggleSoluciones()">${S.verSoluciones ? "🙈 Ocultar soluciones" : "👁 Mostrar soluciones"}</button>
+      <button class="btn btn-ghost" onclick="desbloquearTodo()">${S.todoDesbloqueado ? "🔒 Volver a bloquear" : "🔓 Desbloquear salas (demo)"}</button>
+      <button class="btn btn-ghost" style="border-color:var(--coral)" onclick="nuevoEquipo();cerrarModal()">🗑 Reiniciar</button>
+      <button class="btn btn-ghost" onclick="cerrarModal()">Cerrar</button>
+    </div>
+    <p class="muted" style="font-size:13px">El progreso se guarda solo en este navegador. Para registrar la evaluación, usá “Copiar informe” y pegalo en tu planilla o en el aula virtual.</p>`);
+}
+function copiarProgreso() {
+  const lineas = [`PyLab Escape · Informe del equipo ${S.team}`, `Fecha: ${new Date().toLocaleString("es-AR")}`, `XP: ${S.xp} | Tiempo: ${fmtTiempo(S.elapsed)} | Pistas: ${S.pistasTotales} | Puerta: ${S.puerta ? "abierta" : "cerrada"}`]
+    .concat(SALAS.map(s => { const st = S.salas[s.id]; return `Sala ${s.id} (${s.concepto}): lectura ${st.lectura ? "sí" : "no"}, práctica ${s.practica.filter((_, i) => st.practica[i]).length}/3, desafío ${st.desafio ? "superado" : "pendiente"} en ${st.intentos} intento(s), pistas ${st.pistas}`; }))
+    .concat([`Misión final: tema ${S.tema !== null ? TEMAS[S.tema].t : "sin elegir"}, checklist ${S.checklist.filter(Boolean).length}/${CHECKLIST.length}`, `Insignias: ${insignias().filter(b => b.ok).map(b => b.t).join(", ") || "ninguna"}`]);
+  const txt = lineas.join("\n");
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("📋 Informe copiado")).catch(() => modal(`<h3>Informe</h3><textarea class="editor" style="min-height:260px;background:var(--code)">${esc(txt)}</textarea><button class="btn btn-main" onclick="cerrarModal()">Cerrar</button>`));
+}
+function toggleSoluciones() {
+  if (!S.verSoluciones && !confirm("¿Mostrar el botón de soluciones en los desafíos? Recomendado solo para el docente.")) return;
+  S.verSoluciones = !S.verSoluciones; guardar(); cerrarModal(); irA(vista, salaActual);
+}
+function desbloquearTodo() { S.todoDesbloqueado = !S.todoDesbloqueado; guardar(); cerrarModal(); irA(S.team ? "mapa" : "intro"); }
+
+/* ---------------- INICIO ---------------- */
+(function iniciar() {
+  pintarBarra();
+  const h = (location.hash || "").slice(1);
+  if (h === "lecturas") irA("lecturas");
+  else if (S.team) { const m = h.match(/^sala-(\d)$/); m ? irA("sala", Number(m[1])) : irA(["mapa", "mision", "cert", "puerta"].includes(h) ? h : "mapa"); }
+  else irA("intro");
+  document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarModal(); });
+})();
+</script>
+</body>
+</html>
